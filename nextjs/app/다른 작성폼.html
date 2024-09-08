@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시물 작성</title>
+    <style>
+        /* 기존 스타일 유지 */
+    </style>
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <script>
+      tinymce.init({
+        selector: '#content',
+        plugins: 'image code',
+        toolbar: 'undo redo | image code',
+        content_style: 'body { font-family:Arial,Helvetica,sans-serif; font-size:14px }'
+      });
+    </script>
+</head>
+<body>
+    <!-- 헤더, 네비게이션, 메인 화면 유지 -->
+    <main>
+        <div class="form-container">
+            <h2>게시물 작성 폼</h2>
+            <form action="/submit-post" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="title">제목</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="content">내용</label>
+                    <textarea id="content" name="content" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="images">이미지 업로드</label>
+                    <input type="file" id="images" name="images" multiple>
+                </div>
+                <div class="form-group">
+                    <button type="submit">작성 완료</button>
+                </div>
+            </form>
+        </div>
+    </main>
+</body>
+</html>
