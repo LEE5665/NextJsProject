@@ -1,0 +1,63 @@
+.header {
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+}
+
+.nav {
+    background-color: #444;
+    padding: 10px;
+    text-align: center;
+}
+
+.main {
+    padding: 20px;
+}
+
+.boardSelection {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.boardSelection a {
+    padding: 15px 30px;
+    margin: 10px;
+    background-color: #007BFF;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 20px;
+}
+
+.boardSelection a:hover {
+    background-color: #0056b3;
+}
+
+.recentPosts {
+    display: flex;
+    justify-content: space-between;
+}
+
+.post {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    width: 48%;
+}
+
+.post img {
+    max-width: 100%;
+    border-radius: 8px;
+}
+
+.post h3 {
+    font-size: 22px;
+    margin: 10px 0;
+}
+
+.post p {
+    font-size: 16px;
+    color: #555;
+}

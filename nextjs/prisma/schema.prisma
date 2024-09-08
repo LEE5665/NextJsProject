@@ -1,0 +1,33 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model board {
+  ID      Int    @id @default(autoincrement())
+  Title   String @db.VarChar(45)
+  Content String @db.Text
+}
+
+model image {
+  id       Int    @id @default(autoincrement())
+  filename String
+  filepath String
+  mimetype String
+  postId   Int
+  post     post   @relation(fields: [postId], references: [id], map: "Image_postId_fkey")
+
+  @@index([postId], map: "Image_postId_fkey")
+}
+
+model post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  image     image[]
+}
