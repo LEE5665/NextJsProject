@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 - JSP 게시판</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .register-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        input[type="text"],
+        input[type="password"],
+        input[type="email"] {
+            width: calc(100% - 20px); /* Adjust width to match button */
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #0056b3; /* Unified button color */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #004494;
+        }
+        .login-link {
+            text-align: center;
+            margin-top: 10px;
+        }
+        .login-link a {
+            color: #0056b3;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="register-container">
+        <h2>회원가입</h2>
+        <form action="register-process.html" method="POST">
+            <input type="text" name="nickname" placeholder="사용할 닉네임" required>
+            <input type="text" name="username" placeholder="사용자 이름" required>
+            <input type="text" name="id" placeholder="아이디" required>
+            <input type="email" name="email" placeholder="이메일" required>
+            <input type="password" name="password" placeholder="비밀번호" required>
+            <input type="password" name="password2" placeholder="비밀번호 확인" required>
+            <button type="submit">회원가입</button>
+        </form>
+        <div class="login-link">
+            <p>이미 회원이신가요? <a href="login.html">로그인</a></p>
+        </div>
+    </div>
+
+</body>
+</html>

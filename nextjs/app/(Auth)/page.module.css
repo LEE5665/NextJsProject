@@ -1,0 +1,68 @@
+.body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.loginContainer {
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: 300px;
+}
+
+.title {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.input {
+    width: calc(100% - 20px); /* Adjust width to match button */
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.button, .backButton {
+    width: 100%; /* Ensure both buttons are full width */
+    padding: 10px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.button {
+    background-color: #0056b3; /* Login button color */
+    margin-bottom: 10px; /* Add margin to create space between buttons */
+}
+
+.button:hover {
+    background-color: #004494; /* Login button hover color */
+}
+
+.backButton {
+    background-color: #ccc; /* Back button color */
+}
+
+.backButton:hover {
+    background-color: #aaa; /* Back button hover color */
+}
+
+.registerLink {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.registerLink a {
+    color: #0056b3;
+    text-decoration: none;
+}
