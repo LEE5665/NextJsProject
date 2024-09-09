@@ -1,12 +1,35 @@
+"use client"
+
 import Link from 'next/link';
 import styles from '../page.module.css'
+import axios from 'axios'
 
 export default function Signup() {
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        try {
+            const response = await axios.post('/api/auth/signup', {
+                nickname: formData.get('nickname'),
+                name: formData.get('username'),
+                id: formData.get('userid'),
+                email: formData.get('email'),
+                password: formData.get('password1'),
+            });
+            if(response.status == 201) {
+                console.log("성공");
+            }
+        } catch (error){
+            console.error("실패");
+        }
+    };
+
     return (
         <div className={styles.body}>
             <div className={styles.loginContainer}>
                 <h2 className={styles.title}>회원가입</h2>
-                <form action="register-process.html" method="POST">
+                <form onSubmit={handleSubmit}>
                 <input
                         type="text"
                         name="nickname"
