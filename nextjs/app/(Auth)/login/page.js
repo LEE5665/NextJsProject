@@ -1,15 +1,46 @@
+"use client"
+
 import Link from 'next/link';
+import { signIn, useSession } from 'next-auth/react'
+import { useEffect } from "react";
 import styles from '../page.module.css'
 
 export default function Login() {
+    const { data: session, status } = useSession();
+
+    useEffect(() => {
+      if (status === "authenticated" && session) {
+        // JWT에서 저장된 사용자 id 출력
+        console.log("User ID:", session.user.id);
+      }
+    }, [session, status]);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        console.log("ID:", formData.get('id'));
+        console.log("Password:", formData.get('password'));
+        const result = await signIn('credentials', {
+            redirect: false,
+            id: formData.get('id'),
+            password: formData.get('password')
+        });
+        // if(result.error){
+        //     console.log("오류!");
+        // }
+        // else {
+        //     console.log("성공!");
+        // }
+    }
+
     return (
         <div className={styles.body}>
             <div className={styles.loginContainer}>
                 <h2 className={styles.title}>로그인</h2>
-                <form action="login-process.html" method="POST">
+                <form onSubmit={handleSubmit}>
                     <input
                         type="text"
-                        name="username"
+                        name="id"
                         placeholder="사용자 이름"
                         required
                         className={styles.input}
