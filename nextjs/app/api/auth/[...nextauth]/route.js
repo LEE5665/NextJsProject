@@ -19,7 +19,7 @@ const authOptions = {
           });
   
           if (user && await bcrypt.compare(credentials.password, user.password)) {
-            return { nickname: user.nickname };
+            return { nickname: user.nickname, id: user.id };
           }
           return null;
         }
@@ -36,12 +36,14 @@ const authOptions = {
     callbacks: {
       async session({ session, token }) {
         // session.user.id에 토큰의 id를 추가
-        session.user.id = token.nickname;
+        session.user.id = token.id;
+        session.user.nickname = token.nickname;
         return session;
       },
       async jwt({ token, user }) {
         // 처음 로그인 시 JWT에 user id를 저장
         if (user) {
+          token.id = user.id;
           token.nickname = user.nickname;
         }
         return token;
