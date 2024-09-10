@@ -1,38 +1,37 @@
 "use client"
 
 import Link from 'next/link';
-import { signIn, useSession } from 'next-auth/react'
-import { useEffect } from "react";
-import styles from '../page.module.css'
+import { signIn } from 'next-auth/react';
+import styles from '../page.module.css';
+import { useRouter } from 'next/navigation'
 
 export default function Login() {
-    const { data: session, status } = useSession();
-
-    useEffect(() => {
-      if (status === "authenticated" && session) {
-        // JWT에서 저장된 사용자 id 출력
-        console.log("User ID:", session.user.id);
-      }
-    }, [session, status]);
-
+    const router = useRouter();
     const handleSubmit = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
         console.log("ID:", formData.get('id'));
         console.log("Password:", formData.get('password'));
-        const result = await signIn('credentials', {
-            redirect: false,
-            id: formData.get('id'),
-            password: formData.get('password')
-        });
-        // if(result.error){
-        //     console.log("오류!");
-        // }
-        // else {
-        //     console.log("성공!");
-        // }
-    }
-
+        try {
+            const result = await signIn('credentials', {
+                redirect: false, // 자동 리다이렉트 방지
+                id: formData.get('id'),
+                password: formData.get('password')
+            });
+    
+            if (result.ok) {
+                console.log('로그인 성공');
+                router.push('/');
+            } else {
+                // 401 상태 코드가 반환되었을 때 클라이언트에서 직접 처리
+                console.log('로그인 실패: 잘못된 자격 증명');
+                alert("로그인에 실패했습니다. 아이디 또는 비밀번호를 확인하세요.");
+            }
+        } catch (error) {
+            console.error("로그인 처리 중 오류 발생:", error);
+            alert("오류가 발생했습니다. 나중에 다시 시도하세요.");
+        }
+    };
     return (
         <div className={styles.body}>
             <div className={styles.loginContainer}>
