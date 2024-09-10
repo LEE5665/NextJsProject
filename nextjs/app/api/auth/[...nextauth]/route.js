@@ -19,7 +19,7 @@ const authOptions = {
           });
   
           if (user && await bcrypt.compare(credentials.password, user.password)) {
-            return { id: user.id };
+            return { nickname: user.nickname };
           }
           return null;
         }
@@ -27,23 +27,26 @@ const authOptions = {
     ],
     session: {
       strategy: "jwt",
+      maxAge: 24 * 60 * 60,
+      updateAge: 24 * 60 * 60
     },
     pages: {
       signIn: '/login',
     },
     callbacks: {
+      async session({ session, token }) {
+        // session.user.id에 토큰의 id를 추가
+        session.user.id = token.nickname;
+        return session;
+      },
       async jwt({ token, user }) {
-        console.log("jwt!!");
+        // 처음 로그인 시 JWT에 user id를 저장
         if (user) {
-          token.id = user.id;
+          token.nickname = user.nickname;
         }
         return token;
-      },
-      // 세션 콜백에서 session.user.id에 토큰에서 가져온 id 추가
-      async session({ session, token }) {
-        session.user.id = token.id;
-        return session;
       }
+      // 세션 콜백에서 session.user.id에 토큰에서 가져온 id 추가
     }
   };
 

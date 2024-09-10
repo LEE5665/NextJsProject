@@ -3,9 +3,10 @@
 import Link from 'next/link';
 import styles from '../page.module.css'
 import axios from 'axios'
+import { useRouter } from 'next/navigation'
 
 export default function Signup() {
-
+    const router = useRouter();
     const handleSubmit = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
@@ -18,10 +19,13 @@ export default function Signup() {
                 password: formData.get('password1'),
             });
             if(response.status == 201) {
+                alert("회원가입 완료");
                 console.log("성공");
+                router.push('/');
             }
         } catch (error){
             console.error("실패");
+            alert("이미 사용 중인 아이디 입니다.");
         }
     };
 
