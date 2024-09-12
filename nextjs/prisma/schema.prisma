@@ -25,4 +25,5 @@ model Post {
   views      Int      @default(0)
   author     User?    @relation(fields: [authorId], references: [id])
   authorId   String?
+  password   String?
 }

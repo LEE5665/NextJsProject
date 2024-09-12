@@ -1,11 +1,37 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt"
+import dayjs from 'dayjs';
 
 const prisma = new PrismaClient();
+const dbNow = dayjs().add(9, 'hour').toDate();
 
 export async function POST(req) {
-    const { nickname, name, id, email, password } = await req.json();
+    const { nickname, name, id, email, password, password2 } = await req.json();
+    const koreanRegex = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
+    const errors = {}
 
+    // 유효성 검사
+
+    if (koreanRegex.test(id)) errors.id = '아이디에 한글이 포함되어 있습니다.';
+    if (koreanRegex.test(password)) errors.password = '비밀번호에 한글이 포함되어 있습니다.';
+
+    if (!nickname) errors.nickname = '닉네임을 입력하세요.';
+    if (!name) errors.name = '이름을 입력하세요.';
+    if (!id) errors.id = '아이디를 입력하세요.';
+    if (!email) errors.email = '이메일을 입력하세요.';
+    if (password.length < 8) errors.password = '비밀번호는 최소 8자 이상이어야 합니다.';
+    if (password !== password2) errors.password2 = '비밀번호가 일치하지 않습니다.';
+    const existingNickname = await prisma.user.findUnique({ where: { nickname } });
+    if (existingNickname) {
+        errors.nickname = '이미 사용 중인 닉네임입니다.';
+    }
+    const existingId = await prisma.user.findUnique({ where: { id } });
+    if (existingId) {
+        errors.id = '이미 사용 중인 아이디입니다.';
+    }
+    if (Object.keys(errors).length > 0) {
+        return new Response(JSON.stringify({ error: '유효성 검사 실패', errors }), { status: 400 });
+    }
     try {
         const hashpassword = await bcrypt.hash(password, 10);
         console.log(id);
@@ -16,6 +42,7 @@ export async function POST(req) {
                 id,
                 email,
                 password: hashpassword,
+                createdAt: dbNow,
             }
         });
         return new Response(JSON.stringify(user), { status: 201 });
