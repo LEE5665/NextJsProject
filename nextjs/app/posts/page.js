@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import Auth from '../component/navlogin.js'
+import axios from 'axios';
 
 export default function AllPosts() {
   const [posts, setPosts] = useState([]);
@@ -11,8 +12,9 @@ export default function AllPosts() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await fetch('/api/posts');
-        const data = await response.json();
+        const response = await axios.get('/api/posts');
+        const data = response.data
+        console.log(data);
         setPosts(data);
         setLoading(false);
       } catch (error) {
