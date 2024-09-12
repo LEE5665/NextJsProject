@@ -19,7 +19,6 @@ export default function Login() {
                 redirect: false, // 자동 리다이렉트 방지
                 id: formData.get('id'),
                 password: formData.get('password'),
-                callbackUrl: '/'
             });
     
             if (result.ok) {

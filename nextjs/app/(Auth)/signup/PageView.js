@@ -4,8 +4,11 @@ import Link from 'next/link';
 import styles from '../page.module.css'
 import axios from 'axios'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react';
 
 export default function Signup() {
+    const [formErrors, setFormErrors] = useState({});
+
     const router = useRouter();
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -17,6 +20,7 @@ export default function Signup() {
                 id: formData.get('userid'),
                 email: formData.get('email'),
                 password: formData.get('password1'),
+                password2: formData.get('password2'),
             });
             if(response.status == 201) {
                 alert("회원가입 완료");
@@ -24,8 +28,10 @@ export default function Signup() {
                 router.push('/');
             }
         } catch (error){
-            console.error("실패");
-            alert("이미 사용 중인 아이디 입니다.");
+            if( error.response && error.response.data)
+            {
+                setFormErrors(error.response.data.errors || {})
+            }
         }
     };
 
@@ -34,6 +40,7 @@ export default function Signup() {
             <div className={styles.loginContainer}>
                 <h2 className={styles.title}>회원가입</h2>
                 <form onSubmit={handleSubmit}>
+                {formErrors.nickname && <p style={{ color: 'red', fontSize: '13px' }}>{formErrors.nickname}</p>}
                 <input
                         type="text"
                         name="nickname"
@@ -41,6 +48,7 @@ export default function Signup() {
                         required
                         className={styles.input}
                     />
+                    {formErrors.name && <p style={{ color: 'red', fontSize: '13px' }}>{formErrors.name}</p>}
                     <input
                         type="text"
                         name="username"
@@ -48,6 +56,7 @@ export default function Signup() {
                         required
                         className={styles.input}
                     />
+                    {formErrors.id && <p style={{ color: 'red', fontSize: '13px' }}>{formErrors.id}</p>}
                                         <input
                         type="text"
                         name="userid"
@@ -55,6 +64,7 @@ export default function Signup() {
                         required
                         className={styles.input}
                     />
+                    {formErrors.email && <p style={{ color: 'red', fontSize: '13px' }}>{formErrors.email}</p>}
                     <input
                         type="email"
                         name="email"
@@ -62,6 +72,7 @@ export default function Signup() {
                         required
                         className={styles.input}
                     />
+                    {formErrors.password && <p style={{ color: 'red', fontSize: '13px' }}>{formErrors.password}</p>}
                     <input
                         type="password"
                         name="password1"
@@ -69,6 +80,7 @@ export default function Signup() {
                         required
                         className={styles.input}
                     />
+                    {formErrors.password2 && <p style={{ color: 'red', fontSize: '13px' }}>{formErrors.password2}</p>}
                                         <input
                         type="password"
                         name="password2"
