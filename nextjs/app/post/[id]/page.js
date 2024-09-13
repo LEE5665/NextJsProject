@@ -3,15 +3,14 @@
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import styles from './page.module.css';
 import { useSession } from 'next-auth/react';
 import axios from 'axios';
+import 'react-quill/dist/quill.snow.css';
 
-export default function PostDetail({params}) {
+export default function PostDetail({ params }) {
   const router = useRouter();
-  const { data: session } = useSession()
-  const {id} = params;
-  console.log(id);
+  const { data: session } = useSession();
+  const { id } = params;
   const [post, setPost] = useState(null);
 
   useEffect(() => {
@@ -39,14 +38,14 @@ export default function PostDetail({params}) {
         return; // 비밀번호가 없으면 종료
       }
     }
-    if(isAuthor){
+    if (isAuthor) {
       const confirmed = confirm("정말로 게시글을 삭제하시겠습니까?");
-      if (!confirmed){
+      if (!confirmed) {
         return;
       }
     }
     try {
-      const response = await axios.post(`/api/posts/${id}/delete`, {password});
+      const response = await axios.post(`/api/posts/${id}/delete`, { password });
       if (response.data.success) {
         alert("게시글이 삭제되었습니다.");
         router.push('/posts');
@@ -55,14 +54,14 @@ export default function PostDetail({params}) {
       }
     } catch (error) {
       console.error('삭제 요청 중 오류 발생:', error);
-      if(error.response && error.response.data.error){
+      if (error.response && error.response.data.error) {
         alert(error.response.data.error);
       }
     }
   }
 
   if (!post) {
-    return <p></p>; // 게시글이 없을 때
+    return <p>로딩 중...</p>; // 게시글을 로딩 중일 때
   }
 
   const isAuthor = session && post.author && session.user.id === post.author.id;
@@ -70,7 +69,7 @@ export default function PostDetail({params}) {
   return (
     <div>
       <header>
-        <h1>게시글 상세</h1> {/* 게시글 제목 */}
+        <h1>게시글 상세</h1>
       </header>
       <nav>
         <div className="nav-links">
@@ -81,7 +80,10 @@ export default function PostDetail({params}) {
       <section>
         <h2>{post.title}</h2>
         <div className="post-detail">
-          <p>{post.content}</p> {/* 게시글 본문 */}
+          {/* Quill 에디터로 작성된 HTML을 렌더링 */}
+          <div 
+            className="ql-editor" dangerouslySetInnerHTML={{ __html: post.content }} 
+          /> 
           <p className="author">작성자: {post.author?.nickname || '익명'}</p> {/* 작성자 정보 */}
         </div>
 
@@ -95,7 +97,6 @@ export default function PostDetail({params}) {
         ) : null}
       </section>
       <footer>
-        {/* <p>&copy; 2024 개발 게시판</p> */}
       </footer>
     </div>
   );

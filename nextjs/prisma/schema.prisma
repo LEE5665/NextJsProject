@@ -20,7 +20,7 @@ model User {
 model Post {
   id         Int      @id @default(autoincrement())
   title      String
-  content    String
+  content    String   @db.MediumText
   createdAt  DateTime @default(now())
   views      Int      @default(0)
   author     User?    @relation(fields: [authorId], references: [id])

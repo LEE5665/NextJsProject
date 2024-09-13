@@ -42,7 +42,6 @@ export default function Home() {
         <h2>인기 글</h2>
         <div className="articles">
           <article>
-            {/* <div className="image" style={{ backgroundImage: 'url(/your-image-url.jpg)' }}></div> */}
             <div className="content">
               <h3>제목 5</h3>
               <p>내용의 요약 5...</p>

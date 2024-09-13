@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '../../../../auth/[...nextauth]/route.js'
 
 const prisma = new PrismaClient();
 
@@ -8,7 +9,7 @@ export async function POST(req, { params }) {
     const { password } = await req.json();
   
     // 세션 가져오기
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
   
     // 게시글 찾기
     const post = await prisma.post.findUnique({ where: { id: parseInt(id) } });
@@ -21,6 +22,7 @@ export async function POST(req, { params }) {
   
     // 로그인된 사용자인 경우 처리
     if (!password) {
+      console.log(session);
       if (!session || session.user.id !== post.authorId) {
         return new Response(JSON.stringify({ success: false, error: '작성자가 아닙니다.' }), {
           status: 403,
@@ -29,8 +31,6 @@ export async function POST(req, { params }) {
     } else {
       // 익명 사용자인 경우 비밀번호 검증
       if (post.password !== password) {
-        console.log(password);
-        console.log(post.password);
         return new Response(JSON.stringify({ success: false, error: '비밀번호가 틀렸습니다.' }), {
           status: 401,
         });
