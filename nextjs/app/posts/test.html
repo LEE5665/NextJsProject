@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>모든 게시글</title>
+  <style>
+/* 기본 스타일 */
+body, h1, h2, h3, p, a { 
+  margin: 0; 
+  padding: 0; 
+}
+
+body { 
+  font-family: 'Noto Sans KR', sans-serif; 
+  color: #333; 
+  background: #f4f4f4; 
+  line-height: 1.6; 
+}
+
+header { 
+  background: #28527a; 
+  color: #ffffff; 
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+  text-align: center; 
+  padding: 20px 0; 
+}
+
+/* 내비게이션 바 스타일 */
+nav { 
+  background: #ffffff; 
+  padding: 10px 0; 
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+  display: flex; 
+  justify-content: center; /* 가운데 정렬 */
+  align-items: center;
+  position: relative; /* 로그인/회원가입을 오른쪽에 배치하기 위한 상대 위치 */
+}
+
+/* 내비게이션 가운데에 링크들 */
+.nav-links {
+  display: flex;
+  flex-wrap: wrap; /* 화면에 맞게 줄 바꿈 */
+  gap: 15px;
+  justify-content: center; /* 중앙 정렬 */
+  flex: 1; /* 가운데 영역 차지 */
+}
+
+/* 링크 스타일 */
+nav a { 
+  color: #555; 
+  text-decoration: none; 
+  padding: 10px 15px; 
+}
+
+nav a:hover { 
+  background-color: #3e92cc; 
+  color: #fff; 
+}
+
+/* 섹션 스타일 */
+section {
+  padding: 20px;
+  background: #fff;
+  margin: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+h2 { 
+  margin-bottom: 20px; 
+}
+
+.articles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  align-items: stretch; /* 모든 박스를 같은 높이로 맞춤 */
+}
+
+    /* 기사 스타일 */
+    article {
+      flex: 1 1 calc(33.333% - 20px); /* 3개씩 배치 */
+      max-width: calc(33.333% - 20px);
+      margin-bottom: 20px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      background-color: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #ddd;
+      transition: transform 0.3s;
+      height: 100%; /* 게시글의 고정된 높이로 설정 */
+    }
+
+    
+
+    article:hover {
+      transform: translateY(-5px); /* 호버 시 박스가 살짝 올라가는 효과 */
+    }
+
+    /* 이미지 스타일 */
+    .image {
+      width: 100%;
+      height: 150px; /* 이미지의 고정된 높이 */
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+
+    /* 이미지가 없는 경우를 위한 기본 스타일 */
+    .image-placeholder {
+      width: 100%;
+      height: 150px; /* 이미지와 동일한 높이 */
+      background-color: #e0e0e0; /* 회색 배경으로 빈 이미지 영역 표시 */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.2rem;
+      color: #999;
+    }
+
+    /* 콘텐츠 스타일 */
+    .content {
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between; /* 상단과 하단에 요소를 배치 */
+      background-color: #f9f9f9;
+      flex-grow: 1; /* 텍스트 영역이 남은 공간을 채움 */
+      position: relative;
+      z-index: 1; /* 이미지보다 위에 표시되도록 */
+    }
+
+    .content h3 {
+      font-weight: 700;
+      color: #000;
+      margin-bottom: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis; /* 긴 제목은 생략 표시 */
+    }
+
+    .content p {
+      margin-bottom: 10px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2; /* 텍스트를 최대 2줄까지만 보여줌 */
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-grow: 1; /* 텍스트 영역이 남은 공간을 차지하도록 설정 */
+    }
+
+    /* 저자와 조회수 정보 스타일 */
+    .footer-info {
+      display: flex;
+      justify-content: space-between; /* 왼쪽엔 작성자, 오른쪽엔 조회수 */
+      align-items: flex-end; /* 하단에 위치하게 조정 */
+      font-size: 0.875rem; /* 글씨 크기 동일하게 설정 */
+      margin-top: auto;
+      padding-top: 10px; /* 상단 여백 */
+      flex-shrink: 0; /* 하단에 고정 */
+    }
+
+    .author, .view-count {
+      color: #777;
+      font-weight: bold;
+    }
+
+    .view-count {
+      text-align: right;
+    }
+
+    /* 링크 스타일 */
+    .no-underline {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* 이미지가 없는 경우 article을 꽉 채우는 스타일 */
+    .article.no-image {
+      height: auto; /* 이미지가 없으면 높이 자동 설정 */
+      background-color: #f7f7f7; /* 약간의 배경색 차별화 */
+    }
+
+    .article.no-image .content {
+      padding: 20px; /* 글만 있을 때 여백을 조금 넉넉하게 */
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .article.no-image h3 {
+      font-size: 1.25rem; /* 제목 크기 키움 */
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .article.no-image p {
+      font-size: 1rem;
+      line-height: 1.5;
+      margin-bottom: 10px;
+      color: #555;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-grow: 1;
+    }
+
+    /* 반응형 스타일 */
+    @media (max-width: 768px) {
+      .nav-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+        width: 100%; /* 전체 너비 차지 */
+      }
+
+      article {
+        flex: 1 1 100%; /* 100% 너비 */
+        max-width: 100%; 
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>모든 게시글</h1>
+  </header>
+  <nav>
+    <div class="nav-links">
+      <a href="/">홈</a>
+      <a href="/posts">모든 글</a>
+      <a href="#">검색</a>
+      <a href="/post">게시글 작성</a>
+    </div>
+  </nav>
+  <section>
+    <h2>게시글 목록</h2>
+    <div class="articles">
+      <!-- 이미지가 있는 게시글 -->
+      <article class="article">
+        <a href="/post/1" class="no-underline">
+          <div class="image" style="background-image: url('your-image-url.jpg');"></div>
+          <div class="content">
+            <h3>제목 1</h3>
+            <p>이것은 이미지가 있는 게시글의 내용입니다...</p>
+            <div class="footer-info">
+              <span class="author">작성자: 홍길동</span>
+              <span class="view-count">조회수: 12</span>
+            </div>
+          </div>
+        </a>
+      </article>
+
+      <!-- 이미지가 없는 게시글 -->
+      <article class="article no-image">
+        <a href="/post/2" class="no-underline">
+          <div class="content">
+            <h3>제목 2</h3>
+            <p>이것은 이미지가 없는 게시글의 내용입니다...</p>
+            <div class="footer-info">
+              <span class="author">작성자: 익명</span>
+              <span class="view-count">조회수: 5</span>
+            </div>
+          </div>
+        </a>
+      </article>
+    </div>
+  </section>
+</body>
+</html>
