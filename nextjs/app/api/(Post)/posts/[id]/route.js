@@ -5,6 +5,15 @@ const prisma = new PrismaClient();
 export async function GET(req, { params }) {
     const {id} = params;
     try {
+      const view = await prisma.post.update({
+        where: { id: parseInt(id) },
+        data: {
+          views: {
+            increment: 1,
+          },
+        },
+      });
+      
         const post = await prisma.post.findUnique({
           where: { id: parseInt(id) },
           include: { author: true },

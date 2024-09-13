@@ -80,20 +80,20 @@ h2 {
 }
 
     /* 기사 스타일 */
-    article {
-      flex: 1 1 calc(33.333% - 20px); /* 3개씩 배치 */
-      max-width: calc(33.333% - 20px);
-      margin-bottom: 20px;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      background-color: #fff;
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid #ddd;
-      transition: transform 0.3s;
-      height: 100%; /* 게시글의 고정된 높이로 설정 */
-    }
+    article { 
+    flex: 1 1 calc(33.333% - 20px); 
+    max-width: calc(33.333% - 20px); 
+    box-sizing: border-box; 
+    margin-bottom: 20px; 
+    border: 1px solid #ddd; 
+    border-radius: 8px; 
+    overflow: hidden; 
+    background: #fff; 
+    transition: transform 0.3s; 
+    display: flex; 
+    flex-direction: column;
+    min-width: 0; 
+  }
 
     
 
@@ -190,7 +190,7 @@ h2 {
       height: 100%;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      justify-content: center;
     }
 
     .article.no-image h3 {

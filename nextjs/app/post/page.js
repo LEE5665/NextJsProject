@@ -5,6 +5,8 @@ import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import 'react-quill/dist/quill.snow.css';
+import styles from './page.module.css'; // 홈 스타일 가져오기
+import Link from 'next/link';
 
 const ReactQuill = dynamic(async () => {
   const { default: RQ } = await import('react-quill');
@@ -53,7 +55,6 @@ export default function NoticeEditor() {
       formData.append("file", file);
 
       try {
-        // 이미지 업로드 API 호출
         const response = await axios.post("/api/upload", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -61,7 +62,6 @@ export default function NoticeEditor() {
         });
 
         const imageUrl = response.data.url; // 서버에서 받은 이미지 URL
-        // Quill 에디터에 이미지 삽입
         const quillEditor = quillRef.current.getEditor(); // Quill 에디터 인스턴스 가져오기
         const range = quillEditor.getSelection();
         quillEditor.insertEmbed(range.index, 'image', imageUrl);
@@ -93,7 +93,6 @@ export default function NoticeEditor() {
     };
   }, []);
 
-  // 게시글 작성 핸들러
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -116,40 +115,56 @@ export default function NoticeEditor() {
 
   return (
     <div>
-      <h1>게시글 작성</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="title"
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="제목을 입력하세요"
-          required
-        />
-        <ReactQuill
-          forwardedRef={quillRef}
-          theme="snow"
-          value={content}
-          onChange={setContent}
-          modules={modules}
-          formats={formats}
-          placeholder="내용을 입력하세요"
-        />
-        
-        {!session && (
-          <div>
-            <label htmlFor="password">비밀번호</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              placeholder="비밀번호를 입력하세요"
-              required
-            />
-          </div>
-        )}
+      <header>
+        <h1>게시글 작성</h1>
+      </header>
+      <nav className="nav-links">
+        <Link href="/">홈</Link>
+        <Link href="/posts">모든 글</Link>
+        <a href="#">검색</a>
+        <Link href="/post">게시글 작성</Link>
+      </nav>
 
-        <button type="submit">작성 완료</button>
-      </form>
+      <section className={styles.section}>
+        <h2>새로운 글 작성하기</h2>
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <input
+            type="text"
+            name="title"
+            className={styles.titleInput}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="제목을 입력하세요"
+            required
+          />
+          <ReactQuill
+            forwardedRef={quillRef}
+            theme="snow"
+            value={content}
+            onChange={setContent}
+            modules={modules}
+            formats={formats}
+            placeholder="내용을 입력하세요"
+            className={styles.editor}
+          />
+          {!session && (
+            <div className={styles.passwordSection}>
+              <label htmlFor="password">ㅤ</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                className={styles.passwordInput}
+                placeholder="비밀번호를 입력하세요"
+                required
+              />
+            </div>
+          )}
+
+          <button type="submit" className={styles.submitButton}>
+          ㅤ작성 완료
+          </button>
+        </form>
+      </section>
     </div>
   );
 }
