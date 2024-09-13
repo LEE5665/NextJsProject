@@ -49,26 +49,18 @@ export default function NoticeEditor() {
     input.setAttribute("accept", "image/*");
     input.click();
 
-    input.onchange = async () => {
-      const file = input.files[0];
-      const formData = new FormData();
-      formData.append("file", file);
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
 
-      try {
-        const response = await axios.post("/api/upload", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-
-        const imageUrl = response.data.url; // 서버에서 받은 이미지 URL
-        const quillEditor = quillRef.current.getEditor(); // Quill 에디터 인스턴스 가져오기
-        const range = quillEditor.getSelection();
-        quillEditor.insertEmbed(range.index, 'image', imageUrl);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const quillEditor = quillRef.current.getEditor();
+        const range = quillEditor.getSelection(true);
+        quillEditor.insertEmbed(range.index, 'image', e.target.result);
         quillEditor.setSelection(range.index + 1);
-      } catch (error) {
-        console.error("이미지 업로드 실패:", error);
-      }
+      };
+      reader.readAsDataURL(file);
     };
   };
 
@@ -96,22 +88,41 @@ export default function NoticeEditor() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
+    formData.append('userId', session?.user?.id || null)
+  
+    // 이미지 파일 정보를 formData에 추가
+    const images = document.querySelectorAll('img');
+    images.forEach((img, index) => {
+      const dataURL = img.src;
+      const blob = dataURLtoBlob(dataURL); // DataURL을 Blob으로 변환하는 함수 필요
+      formData.append(`image_${index}`, blob, `image_${index}.png`);
+      console.log(`image_${index}`, blob, `image_${index}.png`);
+    });
+  
     try {
-      const response = await axios.post("/api/postcreate", {
-        title: formData.get('title'),
-        content,
-        id: session?.user?.id || null,
-        password: formData.get('password') || null,
+      const response = await axios.post("/api/postcreate", formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
-
+  
       if (response.status === 201) {
         alert("게시글이 작성되었습니다.");
-        router.push("/posts"); // 게시글 목록으로 리디렉션
+        router.push("/posts");
       }
     } catch (error) {
       console.error("게시글 작성 중 오류 발생:", error);
+      alert('게시글 작성에 실패했습니다.');
     }
   };
+  
+  // DataURL을 Blob으로 변환하는 함수
+  function dataURLtoBlob(dataurl) {
+    var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+    while(n--){
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new Blob([u8arr], {type:mime});
+  }
 
   return (
     <div>
@@ -139,7 +150,7 @@ export default function NoticeEditor() {
           <ReactQuill
             forwardedRef={quillRef}
             theme="snow"
-            value={content}
+            name="content"
             onChange={setContent}
             modules={modules}
             formats={formats}

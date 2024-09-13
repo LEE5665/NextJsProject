@@ -1,47 +1,56 @@
-import { NextRequest, NextResponse } from "next/server";
-import path from "path";
-import fs from "fs/promises";
-import { existsSync, mkdirSync } from "fs";
+const { PrismaClient } = require("@prisma/client");
+const path = require("path");
+const fs = require("fs").promises;
+const { existsSync, mkdirSync } = require("fs");
 
-const UPLOAD_DIR = path.resolve(process.env.ROOT_PATH ?? process.cwd(), "public/uploads");
+const prisma = new PrismaClient();
+const UPLOAD_DIR = path.resolve(process.env.ROOT_PATH || process.cwd(), "public/uploads");
 
-export const config = {
-  api: {
-    bodyParser: false, // Next.js에서 formData를 사용하려면 bodyParser를 끄는 설정이 필요합니다.
-  },
-};
+if (!existsSync(UPLOAD_DIR)) {
+    mkdirSync(UPLOAD_DIR, { recursive: true });
+}
 
-export const POST = async (req) => {
-  try {
-    const formData = await req.formData(); // formData 추출
-    const file = formData.get("file"); // 'file' 필드에서 파일 추출
+export const POST = async (req, res) => {
 
-    if (!file) {
-      return NextResponse.json({ success: false, message: "파일이 없습니다." }, { status: 400 });
+    try {
+        const { title, content, id, password } = req.body;
+
+        // Extract images from content and replace with server paths
+        const updatedContent = await handleImages(content);
+
+        const newPost = await prisma.post.create({
+            data: {
+                title,
+                content: updatedContent,
+                authorId: id,
+                password,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            }
+        });
+
+        res.status(201).json({ message: "Post created successfully", post: newPost });
+    } catch (error) {
+        console.error("Failed to create post:", error);
+        res.status(500).json({ message: "Failed to create post" });
+    }
+}
+
+async function handleImages(content) {
+    const imgRegex = /<img src="data:image\/[^;]+;base64,([^"]+)"/g;
+    let match;
+    let updatedContent = content;
+
+    while ((match = imgRegex.exec(content)) !== null) {
+        const base64Data = match[1];
+        const buffer = Buffer.from(base64Data, 'base64');
+        const imgFileName = `img-${Date.now()}.png`;
+        const imgFilePath = path.join(UPLOAD_DIR, imgFileName);
+
+        await fs.writeFile(imgFilePath, buffer);
+
+        updatedContent = updatedContent.replace(`data:image/png;base64,${base64Data}`, `/uploads/${imgFileName}`);
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer()); // 파일 데이터를 배열 버퍼로 변환
-
-    // 업로드 디렉토리가 없으면 생성
-    if (!existsSync(UPLOAD_DIR)) {
-      mkdirSync(UPLOAD_DIR, { recursive: true });
-    }
-
-    // 고유한 파일 이름을 생성하여 저장
-    const fileName = `${Date.now()}-${file.name}`;
-    const filePath = path.join(UPLOAD_DIR, fileName);
-
-    // 파일 저장
-    await fs.writeFile(filePath, buffer);
-
-    // 파일 업로드 성공 시 반환할 응답
-    return NextResponse.json({
-      success: true,
-      name: fileName,
-      url: `/uploads/${fileName}`, // 업로드된 파일 URL
-    });
-  } catch (error) {
-    console.error("파일 업로드 중 오류 발생:", error);
-    return NextResponse.json({ success: false, message: "파일 업로드 실패" }, { status: 500 });
-  }
-};
+    return updatedContent;
+}

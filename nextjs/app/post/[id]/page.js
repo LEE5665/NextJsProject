@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -17,8 +17,8 @@ export default function PostDetail({ params }) {
     if (id) {
       const fetchPost = async () => {
         try {
-          const response = await fetch(`/api/posts/${id}`);
-          const data = await response.json();
+          const response = await axios.get(`/api/posts/${id}`);
+          const data = response.data;
           setPost(data);
         } catch (error) {
           console.error('게시글을 가져오는 데 실패했습니다.', error);
@@ -31,19 +31,17 @@ export default function PostDetail({ params }) {
   const handleDelete = async () => {
     let password = null;
 
-    // 익명 사용자는 비밀번호 입력을 받음
     if (!post.author) {
       password = prompt("비밀번호를 입력하세요");
       if (!password) {
-        return; // 비밀번호가 없으면 종료
-      }
-    }
-    if (isAuthor) {
-      const confirmed = confirm("정말로 게시글을 삭제하시겠습니까?");
-      if (!confirmed) {
         return;
       }
     }
+    const confirmed = confirm("정말로 게시글을 삭제하시겠습니까?");
+    if (!confirmed) {
+      return;
+    }
+
     try {
       const response = await axios.post(`/api/posts/${id}/delete`, { password });
       if (response.data.success) {
@@ -58,10 +56,37 @@ export default function PostDetail({ params }) {
         alert(error.response.data.error);
       }
     }
-  }
+  };
+
+  const handleEdit = async () => {
+    if (!post.author) {
+      const password = prompt("비밀번호를 입력하세요");
+      if (!password) {
+        return;
+      }
+  
+      // 비밀번호를 서버로 보내 토큰 요청
+      try {
+        const response = await axios.post(`/api/posts/${id}/check-password`, { password });
+  
+        if (response.data.success) {
+          const { token } = response.data; // 서버에서 발급한 토큰
+          // 토큰을 수정 페이지로 넘김
+          router.push(`/post/edit/${id}?token=${token}`);
+        } else {
+          alert("비밀번호가 틀렸습니다.");
+        }
+      } catch (error) {
+        console.error('비밀번호 검증 중 오류 발생:', error);
+        alert("비밀번호 검증에 실패했습니다.");
+      }
+    } else {
+      router.push(`/post/edit/${id}`);
+    }
+  };
 
   if (!post) {
-    return <p>로딩 중...</p>; // 게시글을 로딩 중일 때
+    return <p>로딩 중...</p>;
   }
 
   const isAuthor = session && post.author && session.user.id === post.author.id;
@@ -73,31 +98,25 @@ export default function PostDetail({ params }) {
       </header>
       <nav>
         <div className="nav-links">
-          <Link href="/">홈</Link> {/* 홈으로 이동 */}
-          <Link href="/posts">모든 글</Link> {/* 전체 글 페이지로 이동 */}
+          <Link href="/">홈</Link>
+          <Link href="/posts">모든 글</Link>
         </div>
       </nav>
       <section>
         <h2>{post.title}</h2>
         <div className="post-detail">
-          {/* Quill 에디터로 작성된 HTML을 렌더링 */}
-          <div 
-            className="ql-editor" dangerouslySetInnerHTML={{ __html: post.content }} 
-          /> 
-          <p className="author">작성자: {post.author?.nickname || '익명'}</p> {/* 작성자 정보 */}
+          <div className="ql-editor" dangerouslySetInnerHTML={{ __html: post.content }} />
+          <p className="author">작성자: {post.author?.nickname || '익명'}</p>
         </div>
 
-        {/* 삭제 버튼 */}
         {isAuthor || !post.author ? (
           <div>
-            <button onClick={handleDelete}>
-              삭제하기
-            </button>
+            <button onClick={handleDelete}>삭제하기</button>
+            <button onClick={handleEdit}>수정하기</button> {/* 수정 버튼 추가 */}
           </div>
         ) : null}
       </section>
-      <footer>
-      </footer>
+      <footer></footer>
     </div>
   );
 }

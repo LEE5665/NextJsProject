@@ -15,6 +15,7 @@
     "dayjs": "^1.11.13",
     "dompurify": "^3.1.6",
     "jsdom": "^25.0.0",
+    "jsonwebtoken": "^9.0.2",
     "next": "14.2.8",
     "next-auth": "^4.24.7",
     "react": "^18",

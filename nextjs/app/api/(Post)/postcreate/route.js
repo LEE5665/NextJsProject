@@ -1,43 +1,97 @@
 import { PrismaClient } from "@prisma/client";
-import dayjs from 'dayjs';
+import path from "path";
+import fs from "fs/promises";
+import { existsSync, mkdirSync } from "fs";
 
 const prisma = new PrismaClient();
-const dbNow = dayjs().add(9, 'hour').toDate();
+const UPLOAD_DIR = path.resolve(process.env.ROOT_PATH ?? process.cwd(), "public/uploads");
 
-export async function POST(req) {
-  const { title, content, id, password } = await req.json();
-  
-  console.log("id:", id); // 세션의 ID가 제대로 전달되는지 확인
-  console.log("password:", password); // 익명 사용자의 경우 비밀번호 확인
+if (!existsSync(UPLOAD_DIR)) {
+    mkdirSync(UPLOAD_DIR, { recursive: true });
+}
 
-  if (id) {
-    // 로그인된 사용자인 경우 (id가 존재하는 경우)
-    console.log("성공: 로그인된 사용자");
-    const response = await prisma.post.create({
-      data: {
-        title,
-        content,
-        author: { connect: { id } },
-        createdAt: dbNow,
-      }
-    });
-    return new Response(JSON.stringify({ message: '성공' }), { status: 201 });
-  } else {
-    // 익명 사용자인 경우 (id가 없고 password로 확인)
-    if (!password) {
-      // 익명 사용자인데 비밀번호가 없으면 오류 반환
-      return new Response(JSON.stringify({ message: '실패: 비밀번호가 필요합니다.' }), { status: 400 });
+export const POST = async (req) => {
+    try {
+        const formData = await req.formData();
+        const title = formData.get('title');
+        const content = formData.get('content');
+        const userId = formData.get('userId');
+        const password = formData.get('password');
+
+        let authorId = null;
+        if (userId) {
+            // `userId`가 실제로 존재하는지 확인
+            const user = await prisma.user.findUnique({
+                where: { id: userId }
+            });
+
+            if (user) {
+                // 유효한 `userId`가 있는 경우 `authorId`로 설정
+                authorId = userId;
+            }
+        }
+
+        // 비밀번호가 없는 경우 익명 사용자는 게시글을 작성할 수 없음
+        if (!authorId && !password) {
+            return new Response(JSON.stringify({ message: "Password is required for anonymous users" }), {
+                status: 400,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+        }
+
+        // 이미지 데이터를 처리 (formData에서 이미지 추출 후 처리)
+        const updatedContent = await handleImages(content, formData);
+
+        // 게시글 생성
+        const newPost = await prisma.post.create({
+            data: {
+                title,
+                content: updatedContent,
+                authorId, // 익명 사용자의 경우 `authorId`는 null로 저장
+                password: authorId ? null : password, // 익명 사용자의 경우 비밀번호 저장
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            },
+        });
+
+        return new Response(JSON.stringify({ message: "Post created successfully", post: newPost }), {
+            status: 201,
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+    } catch (error) {
+        console.error("Failed to create post:", error);
+        return new Response(JSON.stringify({ message: "Failed to create post" }), {
+            status: 500,
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
     }
-    
-    console.log("성공: 익명 사용자");
-    const post = await prisma.post.create({
-      data: {
-        title,
-        content,
-        password,
-        createdAt: dbNow,
-      },
-    });
-    return new Response(JSON.stringify({ message: '성공' }), { status: 201 });
-  }
+};
+
+// 이미지 핸들링 함수
+async function handleImages(content, formData) {
+    let updatedContent = content;
+
+    // formData에서 이미지 파일 추출 및 처리
+    for (const [key, value] of formData.entries()) {
+        if (value instanceof File) {
+            const arrayBuffer = await value.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+            const imgFileName = `img-${Date.now()}-${value.name}`;
+            const imgFilePath = path.join(UPLOAD_DIR, imgFileName);
+
+            await fs.writeFile(imgFilePath, buffer); // 이미지 파일 저장
+
+            // content 내의 이미지 경로를 저장된 경로로 업데이트
+            const imageUrl = `/uploads/${imgFileName}`;
+            updatedContent = updatedContent.replace(`data:image/png;base64,${key}`, imageUrl);
+        }
+    }
+
+    return updatedContent;
 }
