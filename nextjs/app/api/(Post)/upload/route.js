@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import fs from "fs/promises";
 import { existsSync, mkdirSync } from "fs";
+import { v4 as uuidv4 } from 'uuid';
 
 const UPLOAD_DIR = path.resolve(process.env.ROOT_PATH ?? process.cwd(), "public/uploads");
 
@@ -28,7 +29,7 @@ export const POST = async (req) => {
     }
 
     // 고유한 파일 이름을 생성하여 저장
-    const fileName = `${Date.now()}-${file.name}`;
+    const fileName = `${uuidv4()}-${file.name}`;
     const filePath = path.join(UPLOAD_DIR, fileName);
 
     // 파일 저장

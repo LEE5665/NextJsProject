@@ -3,12 +3,19 @@ import dayjs from 'dayjs';
 
 const prisma = new PrismaClient();
 const dbNow = dayjs().add(9, 'hour').toDate();
+const path = require("path");
+const fs = require("fs").promises;
+const { existsSync, mkdirSync } = require("fs");
+const UPLOAD_DIR = path.resolve(process.env.ROOT_PATH || process.cwd(), "public/uploads");
+
+if (!existsSync(UPLOAD_DIR)) {
+  mkdirSync(UPLOAD_DIR, { recursive: true });
+}
 
 export async function POST(req) {
   const { title, content, id, password } = await req.json();
-  
-  console.log("id:", id); // 세션의 ID가 제대로 전달되는지 확인
-  console.log("password:", password); // 익명 사용자의 경우 비밀번호 확인
+
+  //const updatedContent = await handleImages(content);
 
   if (id) {
     // 로그인된 사용자인 경우 (id가 존재하는 경우)
@@ -41,3 +48,35 @@ export async function POST(req) {
     return new Response(JSON.stringify({ message: '성공' }), { status: 201 });
   }
 }
+
+// async function handleImages(content) {
+//   console.log(content);
+//   const imgRegex = /<img src="data:image\/[^;]+;base64,([^"]+)"/g;
+//   let match;
+//   let updatedContent = content;
+//   const imagePromises = []; // 여러 이미지를 비동기로 처리하기 위한 배열
+
+//   // Base64 이미지 추출 및 처리
+//   while ((match = imgRegex.exec(content)) !== null) {
+//     const base64Data = match[1]; // Base64 이미지 데이터 추출
+//     const buffer = Buffer.from(base64Data, 'base64'); // Base64 데이터를 버퍼로 변환
+//     const imgFileName = `img-${Date.now()}-${Math.random()}.png`; // 파일 이름에 랜덤 값 추가
+//     const imgFilePath = path.join(UPLOAD_DIR, imgFileName); // 파일 저장 경로
+
+//     // 이미지 저장 작업을 비동기 처리 배열에 추가
+//     const saveImage = fs.writeFile(imgFilePath, buffer).then(() => {
+//       // content의 Base64 데이터를 실제 이미지 파일 URL로 대체
+//       updatedContent = updatedContent.replace(
+//         `data:image/png;base64,${base64Data}`,
+//         `/uploads/${imgFileName}`
+//       );
+//     });
+
+//     imagePromises.push(saveImage); // 저장 작업을 Promise 배열에 추가
+//   }
+
+//   // 모든 이미지 저장 작업이 완료될 때까지 대기
+//   await Promise.all(imagePromises);
+
+//   return updatedContent; // 수정된 content 반환
+// }
