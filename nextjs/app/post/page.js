@@ -36,10 +36,15 @@ export default function NoticeEditor({ postToEdit = null, token }) {
   const router = useRouter();
   const quillRef = useRef();
 
-
   useEffect(() => {
     if (postToEdit && postToEdit.tags) {
       setTags(postToEdit.tags.map(tag => tag.name)); // 태그 이름만 추출하여 설정
+    }
+    if (postToEdit && postToEdit.viewers) {
+      setViewers(postToEdit.viewers.map(viewer => viewer.nickname)); // 연결된 사용자 가져오기
+    }
+    if (postToEdit && postToEdit.isPrivate) {
+      setIsPrivate(postToEdit.isPrivate);
     }
   }, [postToEdit]);
 
@@ -110,7 +115,7 @@ export default function NoticeEditor({ postToEdit = null, token }) {
       await Promise.all(imagePromises);
       const updatedContent = tempDiv.innerHTML;
 
-      // 게시글과 태그 전송
+      // 게시글과 태그, 사용자, 비공개 여부 전송
       const response = await axios({
         method: postToEdit ? "PUT" : "POST",
         url: postToEdit ? `/api/posts/${postToEdit.id}/edit` : "/api/postcreate",
@@ -118,6 +123,8 @@ export default function NoticeEditor({ postToEdit = null, token }) {
           title,
           content: updatedContent,
           tags, // 태그 추가
+          isPrivate, // 비공개 여부 추가
+          viewers, // 사용자 추가
           userId: session?.user?.id || null,
           password: session ? null : password, // 비밀번호 추가
           token: postToEdit ? token : null
@@ -144,6 +151,37 @@ export default function NoticeEditor({ postToEdit = null, token }) {
     } else if (tags.length >= 5) {
       alert("태그는 최대 5개까지 추가할 수 있습니다.");
     }
+  };
+
+  const handleRemoveTag = (tagToRemove) => {
+    setTags(tags.filter(tag => tag !== tagToRemove));
+  };
+
+  // 사용자 추가 핸들러
+  const handleAddViewer = async () => {
+    if(session.user.nickname == newViewer){
+      alert("본인은 추가할 수 없습니다.");
+      return;
+    }
+    if (newViewer && !viewers.includes(newViewer)) {
+      try {
+        // API 호출로 사용자 존재 여부 확인
+        const response = await axios.get(`/api/checkUser?nickname=${newViewer}`);
+  
+        if (response.status === 200) {
+          // 사용자가 존재할 경우 추가
+          setViewers([...viewers, newViewer]);
+          setNewViewer("");
+        }
+      } catch (error) {
+        // 사용자 존재하지 않으면 오류 처리
+        alert(error.response?.data?.message || "사용자를 찾을 수 없습니다.");
+      }
+    }
+  };
+
+  const handleRemoveViewer = (viewerToRemove) => {
+    setViewers(viewers.filter(viewer => viewer !== viewerToRemove));
   };
 
   return (
@@ -193,10 +231,42 @@ export default function NoticeEditor({ postToEdit = null, token }) {
             <small className={styles.tagLimitText}>최대 5개의 태그를 추가할 수 있습니다.</small>
             <div className={styles.tagContainer}>
               {tags.map((tag, index) => (
-                <span key={index} className={styles.tag}>{`#${tag}`}</span>
+                <span key={index} className={styles.tag} onClick={() => handleRemoveTag(tag)}>{`#${tag}`}</span>
               ))}
             </div>
           </div>
+
+{/* 비공개 설정 */}
+{session && (
+  <div className={styles.privateSection}>
+    <label htmlFor="private">비공개</label>
+    <input
+      type="checkbox"
+      id="private"
+      checked={isPrivate}
+      onChange={(e) => setIsPrivate(e.target.checked)}
+    />
+  </div>
+)}
+
+{/* 비공개가 활성화된 경우에만 사용자 추가 섹션을 표시 */}
+{session && isPrivate && (
+  <div className={styles.viewerSection}>
+    <input
+      type="text"
+      value={newViewer}
+      onChange={(e) => setNewViewer(e.target.value)}
+      placeholder="사용자 닉네임을 입력하세요"
+      className={styles.viewerInput}
+    />
+    <button type="button" onClick={handleAddViewer} className={styles.addViewerButton}>사용자 추가</button>
+    <div className={styles.viewerContainer}>
+      {viewers.map((viewer, index) => (
+        <span key={index} className={styles.viewer} onClick={() => handleRemoveViewer(viewer)}>{viewer}</span>
+      ))}
+    </div>
+  </div>
+)}
 
           {/* 비밀번호 입력 (로그인하지 않았고 새 게시물 작성 시) */}
           {!session && !postToEdit && (

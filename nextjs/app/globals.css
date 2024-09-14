@@ -267,3 +267,10 @@ footer {
   background-color: #1d3e5b; /* 클릭 시 배경색 변화 */
   transform: translateY(0); /* 클릭 시 원래 위치로 */
 }
+
+.highlight-author {
+  font-weight: bold;
+  color: #28527a; /* 강조할 색상 (원하는 색상으로 변경 가능) */
+  /* text-transform: uppercase; 대문자로 표시 (선택 사항) */
+  letter-spacing: 0.5px; /* 글자 간격 추가 (선택 사항) */
+}

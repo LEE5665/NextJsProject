@@ -6,12 +6,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 const UPLOAD_DIR = path.resolve(process.env.ROOT_PATH ?? process.cwd(), "public/uploads");
 
-export const config = {
-  api: {
-    bodyParser: false, // Next.js에서 formData를 사용하려면 bodyParser를 끄는 설정이 필요합니다.
-  },
-};
-
 export const POST = async (req) => {
   try {
     const formData = await req.formData(); // formData 추출
