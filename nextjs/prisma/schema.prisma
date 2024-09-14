@@ -15,6 +15,7 @@ model User {
   password  String
   createdAt DateTime @default(now())
   posts     Post[]
+  viewedPosts Post[] @relation("PostViewers")
 }
 
 model Post {
@@ -28,7 +29,7 @@ model Post {
   authorId   String?
   password   String?
   tags       Tag[]    @relation("PostTags")
-  isPublic   Boolean  @default(true)
+  isPrivate   Boolean  @default(false)
   viewers   User[]    @relation("PostViewers")
 }
 

@@ -12,8 +12,6 @@ export default function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
-        console.log("ID:", formData.get('id'));
-        console.log("Password:", formData.get('password'));
         try {
             const result = await signIn('credentials', {
                 redirect: false, // 자동 리다이렉트 방지

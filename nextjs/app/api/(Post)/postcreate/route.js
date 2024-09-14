@@ -13,7 +13,7 @@ if (!existsSync(UPLOAD_DIR)) {
 }
 
 export async function POST(req) {
-  const { title, content, userId, password, tags } = await req.json();
+  const { title, content, userId, password, tags, isPrivate, viewers } = await req.json();
 
   //const updatedContent = await handleImages(content);
 
@@ -31,7 +31,24 @@ export async function POST(req) {
     return tagConnectOrCreate;
   };
 
+  const handleViewers = async (viewers) => {
+    const viewerConnect = await Promise.all(viewers.map(async (viewerNickname) => {
+      const user = await prisma.user.findUnique({
+        where: { nickname: viewerNickname }
+      });
+  
+      if (!user) {
+        throw new Error(`사용자를 찾을 수 없습니다: ${viewerNickname}`);
+      }
+  
+      return { id: user.id };  // User ID를 사용하여 연결
+    }));
+  
+    return viewerConnect;
+  };
+
   const tagData = await handleTags(tags);
+  const viewerData = await handleViewers(viewers);
 
   if (userId) {
     // 로그인된 사용자인 경우 (id가 존재하는 경우)
@@ -42,8 +59,12 @@ export async function POST(req) {
         content,
         author: { connect: { id: userId } },
         createdAt: dbNow,
+        isPrivate,
         tags: {
           connectOrCreate: tagData,
+        },
+        viewers: {
+          connect: viewerData,  // connect를 사용하여 기존 사용자 연결
         },
       }
     });
