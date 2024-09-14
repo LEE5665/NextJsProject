@@ -1,18 +1,18 @@
 'use client';
-import localFont from "next/font/local";
 import { SessionProvider } from "next-auth/react";
 import "./globals.css";
+import { Noto_Sans_KR } from "next/font/google";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
+// Google 폰트 불러오기
+const bold = Noto_Sans_KR({
+  weight: "500",
+  display: "fallback",
+  subsets: ["latin"],
+  style: "normal",
+  variable: "--noto-sans_KR-bold",
+  fallback: ["system-ui"],
 });
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+
 
 // export const metadata = {
 //   title: "Create Next App",
@@ -21,10 +21,11 @@ const geistMono = localFont({
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="ko">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      ><SessionProvider>{children}</SessionProvider>
+        className={bold.className}
+      >
+        <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
   );
