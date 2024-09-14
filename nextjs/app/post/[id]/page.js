@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import axios from 'axios';
 import 'react-quill/dist/quill.snow.css';
+import styles from './page.module.css'
 
 export default function PostDetail({ params }) {
   const router = useRouter();
@@ -66,6 +67,33 @@ export default function PostDetail({ params }) {
 
   const isAuthor = session && post.author && session.user.id === post.author.id;
 
+  const handleEdit = async () => {
+    if (!post.author) {
+      const password = prompt("비밀번호를 입력하세요");
+      if (!password) {
+        return;
+      }
+  
+      // 비밀번호를 서버로 보내 토큰 요청
+      try {
+        const response = await axios.post(`/api/posts/${id}/check-password`, { password });
+  
+        if (response.data.success) {
+          const { token } = response.data; // 서버에서 발급한 토큰
+          // 토큰을 수정 페이지로 넘김
+          router.push(`/post/edit/${id}?token=${token}`);
+        } else {
+          alert("비밀번호가 틀렸습니다.");
+        }
+      } catch (error) {
+        console.error('비밀번호 검증 중 오류 발생:', error);
+        alert("비밀번호 검증에 실패했습니다.");
+      }
+    } else {
+      router.push(`/post/edit/${id}`);
+    }
+  };
+
   return (
     <div>
       <header>
@@ -86,17 +114,21 @@ export default function PostDetail({ params }) {
           /> 
           <p className="author">작성자: {post.author?.nickname || '익명'}</p> {/* 작성자 정보 */}
         </div>
-
-        {/* 삭제 버튼 */}
-        {isAuthor || !post.author ? (
-          <div>
-            <button onClick={handleDelete}>
+      </section>
+      <footer className={styles.footer}>
+        {(isAuthor || !post.author) && (
+          <div className={styles.footerButtons}>
+            <button className={styles.deleteButton} onClick={handleDelete}>
               삭제하기
             </button>
+            <button
+              className={styles.editButton}
+              onClick={handleEdit}
+            >
+              수정하기
+            </button>
           </div>
-        ) : null}
-      </section>
-      <footer>
+        )}
       </footer>
     </div>
   );

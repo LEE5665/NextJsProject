@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 
-export function Pagination({ currentPage, totalPages, groupSize }) {
+export default function Pagination({ currentPage, totalPages, groupSize }) {
   const router = useRouter();
 
   const handlePageChange = (newPage) => {
