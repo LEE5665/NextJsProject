@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>개발 게시판</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* CSS 변수 설정 */
+    :root {
+      --primary-color: #28527a;
+      --secondary-color: #3e92cc;
+      --background-color: #f4f4f4;
+      --card-bg: #ffffff;
+      --card-border: #ddd;
+      --text-primary: #333333;
+      --text-secondary: #555555;
+      --header-bg: #ffffff;
+      --header-text: #333333;
+      --nav-bg: #ffffff;
+      --nav-link-color: #555555;
+      --nav-link-hover-bg: #3e92cc;
+      --nav-link-hover-text: #ffffff;
+      --footer-bg: #ffffff;
+      --footer-text: #333333;
+      --toggle-bg: #28527a;
+      --toggle-text: #ffffff;
+      --toggle-hover-bg: #3e92cc;
+      --button-bg: #28527a;
+      --button-text: #ffffff;
+      --button-hover-bg: #3e92cc;
+      --box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      --transition-speed: 0.3s;
+    }
+
+    /* 다크 모드 변수 */
+    body.dark-mode {
+      --background-color: #121212;
+      --card-bg: #1e1e1e;
+      --card-border: #333333;
+      --text-primary: #e0e0e0;
+      --text-secondary: #cccccc;
+      --header-bg: #1e1e1e;
+      --header-text: #e0e0e0;
+      --nav-bg: #333333;
+      --nav-link-color: #ffffff;
+      --nav-link-hover-bg: #555555;
+      --nav-link-hover-text: #ffffff;
+      --footer-bg: #1e1e1e;
+      --footer-text: #e0e0e0;
+      --toggle-bg: #555555;
+      --toggle-text: #ffffff;
+      --toggle-hover-bg: #666666;
+      --button-bg: #444444;
+      --button-text: #ffffff;
+      --button-hover-bg: #555555;
+      --box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* 동일하게 유지 */
+    }
+
+    /* 기본 리셋 */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Noto Sans KR';
+      background-color: var(--background-color);
+      color: var(--text-primary);
+      line-height: 1.6;
+      transition: background-color var(--transition-speed), color var(--transition-speed);
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* 헤더 스타일 */
+    header {
+      background-color: var(--header-bg);
+      color: var(--header-text);
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--box-shadow);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      transition: background-color var(--transition-speed), color var(--transition-speed);
+    }
+
+    header .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    header .auth-buttons button {
+      background-color: var(--button-bg);
+      color: var(--button-text);
+      border: none;
+      padding: 8px 16px;
+      margin-left: 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color var(--transition-speed);
+    }
+
+    header .auth-buttons button:hover {
+      background-color: var(--button-hover-bg);
+    }
+
+    /* 네비게이션 바 스타일 */
+    nav {
+      background-color: var(--nav-bg);
+      padding: 10px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--box-shadow);
+      transition: background-color var(--transition-speed); /* box-shadow는 동일하게 유지 */
+      position: sticky;
+      top: 70px;
+      z-index: 999;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      padding: 8px 12px;
+      border-radius: 4px;
+      transition: background-color var(--transition-speed), color var(--transition-speed);
+      color: var(--nav-link-color);
+      font-weight: 500;
+    }
+
+    .nav-links a:hover {
+      background-color: var(--nav-link-hover-bg);
+      color: var(--nav-link-hover-text);
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+    }
+
+    .search-bar input[type="text"] {
+      width: 250px;
+      padding: 8px 12px;
+      border: 1px solid var(--card-border);
+      border-radius: 4px;
+      outline: none;
+      transition: border-color var(--transition-speed);
+      background-color: var(--card-bg);
+      color: var(--text-primary);
+    }
+
+    .search-bar input[type="text"]:focus {
+      border-color: var(--secondary-color);
+    }
+
+    .search-bar .search-options {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .search-bar .search-options label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    .search-bar .search-options input {
+      margin-right: 5px;
+      cursor: pointer;
+    }
+
+    .search-bar .search-button {
+      background-color: var(--toggle-bg);
+      color: var(--toggle-text);
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color var(--transition-speed), transform var(--transition-speed);
+      font-size: 0.875rem;
+    }
+
+    .search-bar .search-button:hover {
+      background-color: var(--toggle-hover-bg);
+      transform: translateY(-2px);
+    }
+
+    .theme-toggle {
+      background-color: var(--toggle-bg);
+      color: var(--toggle-text);
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color var(--transition-speed); /* transform 제거 */
+      margin-left: 20px;
+      font-size: 0.875rem;
+    }
+
+    .theme-toggle:hover {
+      background-color: var(--toggle-hover-bg);
+    }
+
+    /* 모바일 메뉴 버튼 */
+    .menu-toggle {
+      display: none;
+      background-color: var(--toggle-bg);
+      color: var(--toggle-text);
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color var(--transition-speed), transform var(--transition-speed);
+      font-size: 1.25rem;
+    }
+
+    .menu-toggle:hover {
+      background-color: var(--toggle-hover-bg);
+      transform: translateY(-2px);
+    }
+
+    /* 메인 콘텐츠 스타일 */
+    main {
+      padding: 40px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    section {
+      margin-bottom: 60px;
+    }
+
+    section h2 {
+      font-size: 1.75rem;
+      margin-bottom: 20px;
+      color: var(--text-primary);
+      border-bottom: 2px solid var(--secondary-color);
+      display: inline-block;
+      padding-bottom: 5px;
+    }
+
+    .articles {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .article {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+      height: 100%;
+    }
+
+    .article:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--box-shadow);
+    }
+
+    .article .image {
+      width: 100%;
+      height: 150px;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .article .content {
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      background-color: var(--card-bg);
+    }
+
+    .article .content h3 {
+      font-size: 1.25rem;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .article .content p {
+      flex-grow: 1;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .article .content .author {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      font-weight: bold;
+      text-align: right;
+    }
+
+    /* 푸터 스타일 */
+    footer {
+      background-color: var(--footer-bg);
+      color: var(--footer-text);
+      text-align: center;
+      padding: 20px;
+      box-shadow: var(--box-shadow);
+      transition: background-color var(--transition-speed), color var(--transition-speed);
+    }
+
+    footer p {
+      margin: 0;
+      font-size: 0.875rem;
+    }
+
+    /* 반응형 디자인 */
+    @media (max-width: 992px) {
+      header, nav, main, footer {
+        padding: 20px;
+      }
+
+      .search-bar input[type="text"] {
+        width: 200px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        position: absolute;
+        top: 60px;
+        left: 0;
+        right: 0;
+        background-color: var(--nav-bg);
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        padding: 20px 0;
+        display: none;
+      }
+
+      .nav-links.active {
+        display: flex;
+      }
+
+      .menu-toggle {
+        display: block;
+      }
+
+      .search-bar {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+      }
+
+      .search-bar input[type="text"] {
+        width: 100%;
+      }
+
+      .search-bar .search-options {
+        justify-content: center;
+      }
+
+      .search-bar .search-button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 헤더 -->
+  <header>
+    <div class="logo">개발 게시판</div>
+    <div class="auth-buttons">
+      <button id="loginButton">로그인</button>
+      <button id="signupButton">회원가입</button>
+    </div>
+  </header>
+
+  <!-- 네비게이션 바 -->
+  <nav>
+    <button class="menu-toggle" id="menuToggle">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="#">홈</a>
+      <a href="#">모든 글</a>
+      <a href="#">게시글 작성</a>
+    </div>
+    <div class="search-bar">
+      <div class="search-options">
+        <label>
+          <input type="radio" name="search-filter" value="title" checked>
+          제목
+        </label>
+        <label>
+          <input type="radio" name="search-filter" value="author">
+          이름
+        </label>
+        <input type="text" placeholder="검색..." id="searchInput">
+      </div>
+      <button class="search-button" id="searchButton">검색</button>
+    </div>
+    <button class="theme-toggle" id="themeToggle">다크 모드</button>
+  </nav>
+
+  <!-- 메인 콘텐츠 -->
+  <main>
+    <!-- 히어로 섹션 -->
+    <section>
+      <h2>환영합니다!</h2>
+      <p>최신 기술과 개발 트렌드를 공유하고 토론하세요. 여러분의 지식과 경험을 나누는 공간입니다.</p>
+    </section>
+
+    <!-- 최근 글 섹션 -->
+    <section>
+      <h2>최근 글</h2>
+      <div class="articles">
+        <div class="article">
+          <div class="image" style="background-image: url('https://via.placeholder.com/300x150');"></div>
+          <div class="content">
+            <h3>제목 1</h3>
+            <p>여기는 게시글의 요약 내용이 들어갑니다. 사용자가 내용을 간략하게 파악할 수 있도록 도와줍니다.</p>
+            <p class="author">홍길동</p>
+          </div>
+        </div>
+        <div class="article">
+          <div class="content">
+            <h3>제목 2</h3>
+            <p>여기는 게시글의 요약 내용이 들어갑니다. 이미지가 없는 게시글의 경우 배경색으로 구분됩니다.</p>
+            <p class="author">김영희</p>
+          </div>
+        </div>
+        <div class="article">
+          <div class="image" style="background-image: url('https://via.placeholder.com/300x150');"></div>
+          <div class="content">
+            <h3>제목 3</h3>
+            <p>여기는 게시글의 요약 내용이 들어갑니다. 다양한 주제의 글들이 모여 있습니다.</p>
+            <p class="author">이준호</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 인기 글 섹션 -->
+    <section>
+      <h2>인기 글</h2>
+      <div class="articles">
+        <div class="article">
+          <div class="image" style="background-image: url('https://via.placeholder.com/300x150');"></div>
+          <div class="content">
+            <h3>제목 4</h3>
+            <p>여기는 인기 게시글의 요약 내용이 들어갑니다. 많은 사람들이 관심을 가지는 주제입니다.</p>
+            <p class="author">최민수</p>
+          </div>
+        </div>
+        <div class="article">
+          <div class="content">
+            <h3>제목 5</h3>
+            <p>여기는 인기 게시글의 요약 내용이 들어갑니다. 사용자들 간의 활발한 토론이 이루어집니다.</p>
+            <p class="author">김하늘</p>
+          </div>
+        </div>
+        <div class="article">
+          <div class="image" style="background-image: url('https://via.placeholder.com/300x150');"></div>
+          <div class="content">
+            <h3>제목 6</h3>
+            <p>여기는 인기 게시글의 요약 내용이 들어갑니다. 다양한 의견과 정보를 공유합니다.</p>
+            <p class="author">박지성</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 푸터 -->
+  <footer>
+    <p>&copy; 2024 개발 게시판. All rights reserved.</p>
+  </footer>
+
+  <!-- JavaScript -->
+  <script>
+    // 다크 모드 토글
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+
+    // 초기 테마 설정 (사용자의 선호도에 따라)
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      body.classList.add('dark-mode');
+      themeToggle.textContent = '라이트 모드';
+    }
+
+    themeToggle.addEventListener('click', () => {
+      body.classList.toggle('dark-mode');
+      if (body.classList.contains('dark-mode')) {
+        themeToggle.textContent = '라이트 모드';
+      } else {
+        themeToggle.textContent = '다크 모드';
+      }
+    });
+
+    // 모바일 메뉴 토글
+    const menuToggle = document.getElementById('menuToggle');
+    const navLinks = document.getElementById('navLinks');
+
+    menuToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('active');
+    });
+
+    // 로그인 및 회원가입 버튼 (예시)
+    const loginButton = document.getElementById('loginButton');
+    const signupButton = document.getElementById('signupButton');
+
+    loginButton.addEventListener('click', () => {
+      alert('로그인 버튼 클릭!');
+      // 로그인 모달 또는 페이지로 이동
+    });
+
+    signupButton.addEventListener('click', () => {
+      alert('회원가입 버튼 클릭!');
+      // 회원가입 모달 또는 페이지로 이동
+    });
+
+    // 검색 기능
+    const searchInput = document.getElementById('searchInput');
+    const searchButton = document.getElementById('searchButton');
+
+    searchButton.addEventListener('click', () => {
+      const query = searchInput.value.trim();
+      const filter = document.querySelector('input[name="search-filter"]:checked').value;
+
+      if (query === '') {
+        alert('검색어를 입력해주세요!');
+        return;
+      }
+
+      // 실제 검색 로직을 구현하세요. 예: 페이지 이동, API 호출 등
+      alert(`"${filter}" 기준으로 "${query}" 검색!`);
+    });
+
+    // Enter 키로 검색 실행
+    searchInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        searchButton.click();
+      }
+    });
+  </script>
+</body>
+</html>
