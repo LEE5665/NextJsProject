@@ -22,8 +22,18 @@ model Post {
   title      String
   content    String   @db.MediumText
   createdAt  DateTime @default(now())
+  updatedAt  DateTime?
   views      Int      @default(0)
   author     User?    @relation(fields: [authorId], references: [id])
   authorId   String?
   password   String?
+  tags       Tag[]    @relation("PostTags")
+  isPublic   Boolean  @default(true)
+  viewers   User[]    @relation("PostViewers")
+}
+
+model Tag {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  posts Post[]  @relation("PostTags")
 }

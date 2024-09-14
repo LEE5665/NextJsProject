@@ -1,12 +1,13 @@
 "use client";
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import "react-quill/dist/quill.snow.css";
-import styles from "./page.module.css"; // 홈 스타일 가져오기
+import styles from "./page.module.css"; // 스타일 가져오기
 import Link from "next/link";
+import Auth from "../component/navlogin";
 
 // 동적 import로 ReactQuill 로드
 const ReactQuill = dynamic(async () => {
@@ -17,17 +18,30 @@ const ReactQuill = dynamic(async () => {
 }, { ssr: false });
 
 const formats = [
-  'font', 'header', 'bold', 'italic', 'underline', 'strike',
-  'blockquote', 'list', 'bullet', 'indent', 'link', 'align',
-  'color', 'background', 'size', 'h1', 'image',
+  "font", "header", "bold", "italic", "underline", "strike", 
+  "blockquote", "list", "bullet", "indent", "link", "align", 
+  "color", "background", "size", "h1", "image"
 ];
 
 export default function NoticeEditor({ postToEdit = null, token }) {
   const { data: session } = useSession();
-  const [content, setContent] = useState(postToEdit ? postToEdit.content : ""); // 수정 모드일 경우 기존 내용 로드
-  const [title, setTitle] = useState(postToEdit ? postToEdit.title : ""); // 수정 모드일 경우 제목 로드
+  const [content, setContent] = useState(postToEdit ? postToEdit.content : "");
+  const [title, setTitle] = useState(postToEdit ? postToEdit.title : "");
+  const [tags, setTags] = useState([]); // 태그 상태 추가
+  const [newTag, setNewTag] = useState(""); // 새로운 태그 입력 상태
+  const [password, setPassword] = useState(""); // 비밀번호 상태 추가
+  const [isPrivate, setIsPrivate] = useState(postToEdit ? postToEdit.isPrivate : false); // 비공개 여부
+  const [viewers, setViewers] = useState([]); // 볼 수 있는 사용자 목록
+  const [newViewer, setNewViewer] = useState(""); // 새로운 사용자 추가 상태
   const router = useRouter();
   const quillRef = useRef();
+
+
+  useEffect(() => {
+    if (postToEdit && postToEdit.tags) {
+      setTags(postToEdit.tags.map(tag => tag.name)); // 태그 이름만 추출하여 설정
+    }
+  }, [postToEdit]);
 
   // 이미지 업로드 핸들러
   const handleImageUpload = async () => {
@@ -55,27 +69,24 @@ export default function NoticeEditor({ postToEdit = null, token }) {
     };
   };
 
-  const modules = useMemo(() => {
-    return {
-      toolbar: {
-        container: [
-          [{ size: ['small', false, 'large', 'huge'] }],
-          [{ align: [] }],
-          ['bold', 'italic', 'underline', 'strike'],
-          [{ list: 'ordered' }, { list: 'bullet' }],
-          [{ color: [] }, { background: [] }],
-          ['image'], // 이미지 버튼 추가
-        ],
-        handlers: {
-          image: handleImageUpload, // 이미지 업로드 핸들러 추가
-        },
-      },
-    };
-  }, []);
+  const modules = useMemo(() => ({
+    toolbar: {
+      container: [
+        [{ size: ["small", false, "large", "huge"] }],
+        [{ align: [] }],
+        ["bold", "italic", "underline", "strike"],
+        [{ list: "ordered" }, { list: "bullet" }],
+        [{ color: [] }, { background: [] }],
+        ["image"]
+      ],
+      handlers: {
+        image: handleImageUpload
+      }
+    }
+  }), []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
     try {
       const tempDiv = document.createElement("div");
       tempDiv.innerHTML = content;
@@ -89,10 +100,9 @@ export default function NoticeEditor({ postToEdit = null, token }) {
           formData.append("file", blob, "image.png");
 
           const response = await axios.post("/api/upload", formData, {
-            headers: { "Content-Type": "multipart/form-data" },
+            headers: { "Content-Type": "multipart/form-data" }
           });
 
-          // 서버에서 반환된 이미지 URL로 교체
           img.src = response.data.url;
         }
       });
@@ -100,17 +110,18 @@ export default function NoticeEditor({ postToEdit = null, token }) {
       await Promise.all(imagePromises);
       const updatedContent = tempDiv.innerHTML;
 
-      // 게시글 전송: 수정 시는 PUT 요청, 새로 작성 시는 POST 요청
+      // 게시글과 태그 전송
       const response = await axios({
         method: postToEdit ? "PUT" : "POST",
         url: postToEdit ? `/api/posts/${postToEdit.id}/edit` : "/api/postcreate",
         data: {
-          title: formData.get("title"),
+          title,
           content: updatedContent,
+          tags, // 태그 추가
           userId: session?.user?.id || null,
-          password: formData.get("password") || null,
+          password: session ? null : password, // 비밀번호 추가
           token: postToEdit ? token : null
-        },
+        }
       });
 
       if (response.status === 200 || response.status === 201) {
@@ -118,7 +129,20 @@ export default function NoticeEditor({ postToEdit = null, token }) {
         router.push("/posts");
       }
     } catch (error) {
-      console.error("게시글 처리 중 오류 발생:", error);
+      if (error.response && error.response.data) {
+        alert(error.response.data.message);
+      }
+      console.log("게시글 처리 중 오류 발생:", error);
+    }
+  };
+
+  // 태그 추가 핸들러 (태그는 최대 5개까지만 추가 가능)
+  const handleAddTag = () => {
+    if (newTag && !tags.includes(newTag) && tags.length < 5) {
+      setTags([...tags, newTag]);
+      setNewTag("");
+    } else if (tags.length >= 5) {
+      alert("태그는 최대 5개까지 추가할 수 있습니다.");
     }
   };
 
@@ -127,13 +151,13 @@ export default function NoticeEditor({ postToEdit = null, token }) {
       <header>
         <h1>{postToEdit ? "게시글 수정" : "게시글 작성"}</h1>
       </header>
-      <nav className="nav-links">
-        <Link href="/">홈</Link>
-        <Link href="/posts">모든 글</Link>
-        <Link href="#">검색</Link>
-        <Link href="/post">게시글 작성</Link>
+      <nav>
+        <div className="nav-links">
+          <Link href="/">홈</Link>
+          <Link href="/posts">모든 글</Link>
+        </div>
+        <Auth />
       </nav>
-
       <section className={styles.section}>
         <h2>{postToEdit ? "게시글 수정하기" : "새로운 글 작성하기"}</h2>
         <form onSubmit={handleSubmit} className={styles.form}>
@@ -156,7 +180,26 @@ export default function NoticeEditor({ postToEdit = null, token }) {
             placeholder="내용을 입력하세요"
             className={styles.editor}
           />
-          {!session && !postToEdit && ( // 작성 중일 때만 비밀번호 입력 가능
+          {/* 태그 입력 */}
+          <div className={styles.tagSection}>
+            <input
+              type="text"
+              value={newTag}
+              onChange={(e) => setNewTag(e.target.value)}
+              placeholder="태그를 입력하세요"
+              className={styles.tagInput}
+            />
+            <button type="button" onClick={handleAddTag} className={styles.addTagButton}>태그 추가</button>
+            <small className={styles.tagLimitText}>최대 5개의 태그를 추가할 수 있습니다.</small>
+            <div className={styles.tagContainer}>
+              {tags.map((tag, index) => (
+                <span key={index} className={styles.tag}>{`#${tag}`}</span>
+              ))}
+            </div>
+          </div>
+
+          {/* 비밀번호 입력 (로그인하지 않았고 새 게시물 작성 시) */}
+          {!session && !postToEdit && (
             <div className={styles.passwordSection}>
               <label htmlFor="password">비밀번호</label>
               <input
@@ -164,6 +207,8 @@ export default function NoticeEditor({ postToEdit = null, token }) {
                 id="password"
                 name="password"
                 className={styles.passwordInput}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="비밀번호를 입력하세요"
                 required
               />
