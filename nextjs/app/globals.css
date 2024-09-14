@@ -13,49 +13,55 @@ body {
 
 header { 
   background: #28527a; 
-  color: #ffffff; 
+  color: #fff; 
   box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
   text-align: center; 
   padding: 20px 0; 
 }
 
-/* 내비게이션 바 스타일 */
 nav {
-  background: #ffffff;
+  background: #fff;
   padding: 10px 0;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   display: flex;
-  justify-content: space-between; /* 좌우 정렬 */
   align-items: center;
   position: relative;
 }
 
-/* 내비게이션 가운데에 링크들 */
-.nav-links {
-  display: flex;
-  justify-content: center; /* 중앙 정렬 */
-  flex-grow: 1; /* 남은 공간을 차지하여 중앙에 고정 */
-  gap: 15px;
-}
-
-.nav-links a {
-  color: #555;
-  text-decoration: none;
-  padding: 10px 15px;
-  white-space: nowrap;
-}
-
-.nav-links a:hover {
-  background-color: #3e92cc;
+nav .nav-toggle {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #28527a;
   color: #fff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s, transform 0.2s;
 }
 
-/* 링크 스타일 */
+nav .nav-toggle:hover,
+.theme-toggle:hover {
+  background-color: #3e92cc;
+  transform: translateY(-3px);
+}
+
+nav .nav-links {
+  display: flex;
+  justify-content: center;
+  flex-grow: 1;
+  gap: 15px;
+  background-color: #fff;
+}
+
 nav a {
   color: #555;
   text-decoration: none;
   padding: 10px 15px;
-  white-space: nowrap; /* 줄바꿈 없이 한 줄로 고정 */
+  white-space: nowrap;
 }
 
 nav a:hover { 
@@ -63,7 +69,6 @@ nav a:hover {
   color: #fff; 
 }
 
-/* 섹션 스타일 */
 section {
   padding: 20px;
   background: #fff;
@@ -83,9 +88,8 @@ h2 {
   justify-content: center;
 }
 
-/* 기사 스타일 */
 article {
-  flex: 1 1 calc(33.333% - 20px); /* 3개씩 배치 */
+  flex: 1 1 calc(33.333% - 20px);
   max-width: calc(33.333% - 20px);
   margin-bottom: 20px;
   box-sizing: border-box;
@@ -96,33 +100,28 @@ article {
   overflow: hidden;
   border: 1px solid #ddd;
   transition: transform 0.3s;
-  height: 340px; /* 게시글의 고정된 높이로 설정 */
+  height: 340px;
 }
 
 .article:hover {
-  transform: translateY(-5px); /* 호버 시 박스가 살짝 올라가는 효과 */
+  transform: translateY(-5px);
 }
 
-/* 이미지 스타일 */
 .image {
   width: 100%;
-  height: 150px; /* 이미지의 고정된 높이 */
+  height: 150px;
   background-size: cover;
   background-position: center;
-  position: relative;
-  display: block; /* 이미지를 블록 레벨 요소로 설정 */
+  display: block;
 }
 
-
-/* 콘텐츠 스타일 */
 .content {
   padding: 10px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   background-color: #f9f9f9;
   flex-grow: 1;
-  margin: 0; /* 여백 제거 */
+  margin: 0;
 }
 
 .content h3 {
@@ -137,14 +136,13 @@ article {
 .content p {
   margin-bottom: 10px;
   display: -webkit-box;
-  -webkit-line-clamp: 2; /* 텍스트를 최대 3줄까지만 보여줌 */
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
   flex-grow: 1;
 }
 
-/* 저자와 조회수 정보 스타일 */
 .footer-info {
   display: flex;
   justify-content: space-between;
@@ -155,90 +153,71 @@ article {
   margin-top: auto;
 }
 
-/* 이미지가 없는 경우 article을 꽉 채우는 스타일 */
 .article.no-image {
-  height: 340px; /* 이미지가 없어도 고정 높이로 설정 */
+  height: 340px;
   display: flex;
   flex-direction: column;
 }
 
 .article.no-image .content {
-  min-height: 322px;
-  flex-grow: 1; /* 텍스트 영역이 남은 공간을 차지하도록 설정 */
+  min-height: 300px;
+  flex-grow: 1;
 }
 
 .article.yes .content {
-  min-height: 172px; /* 텍스트 영역 높이를 조정 */
+  min-height: 150px;
 }
 
-/* 링크 스타일 */
 .no-underline {
   color: inherit;
   text-decoration: none;
 }
 
-/* 반응형 스타일 */
-@media (max-width: 768px) {
-  .nav-links {
-    display: flex; /* Flexbox로 통일 */
-    flex-wrap: wrap; /* 줄 바꿈 */
-    gap: 15px; /* 간격 조정 */
-    justify-content: center; /* 중앙 정렬 */
-    width: 100%; /* 전체 너비 차지 */
-  }
-
-  article {
-    flex: 1 1 100%; /* 100% 너비 */
-    max-width: 100%; 
-  }
-}
-
-/* 페이징 처리 스타일 */
 .pagination {
-  display: flex; /* 가로로 버튼을 나열 */
-  justify-content: center; /* 중앙 정렬 */
-  align-items: center; /* 수직 중앙 정렬 */
-  gap: 10px; /* 버튼 사이의 간격 */
-  margin: 20px 0; /* 위아래 여백 추가 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0;
 }
 
-.pagination button {
-  background-color: #28527a; /* 버튼의 배경색 */
-  color: #fff; /* 글자색 */
-  border: none; /* 테두리 제거 */
-  padding: 10px 15px; /* 버튼 안쪽 여백 */
-  border-radius: 5px; /* 둥근 모서리 */
-  cursor: pointer; /* 마우스 커서 변경 */
-  font-size: 1rem; /* 버튼 글자 크기 */
-  transition: background-color 0.3s, transform 0.2s; /* 부드러운 색 변화 및 호버 효과 */
+.pagination button,
+.theme-toggle {
+  background-color: #28527a;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s, transform 0.2s;
+  margin-left: 10px;
 }
 
 .pagination button:hover {
-  background-color: #3e92cc; /* 호버 시 배경색 변화 */
-  transform: translateY(-3px); /* 버튼이 살짝 올라가는 효과 */
+  background-color: #3e92cc;
+  transform: translateY(-3px);
 }
 
 .pagination button:disabled {
-  background-color: #ddd; /* 비활성화된 버튼의 배경색 */
-  cursor: not-allowed; /* 클릭할 수 없음을 나타내는 커서 */
-  color: #999; /* 비활성화된 글자색 */
+  background-color: #ddd;
+  cursor: not-allowed;
+  color: #999;
 }
 
 .pagination span {
-  font-weight: bold; /* 페이지 번호를 굵게 */
-  color: #333; /* 기본 텍스트 색상 */
+  font-weight: bold;
+  color: #333;
 }
 
 footer { 
   text-align: center; 
   padding: 20px 0; 
-  background: #ffffff; 
+  background: #fff; 
   color: #333; 
   box-shadow: 0 -2px 4px rgba(0,0,0,0.1); 
 }
 
-/* 태그 스타일 */
-/* 태그 스타일 */
 .tags {
   display: flex;
   flex-wrap: wrap;
@@ -247,30 +226,172 @@ footer {
 }
 
 .tag {
-  background-color: #3e92cc; /* 태그 배경색 */
-  color: #ffffff; /* 태그 글자색 */
-  padding: 5px 12px; /* 태그 내부 여백 */
-  border-radius: 12px; /* 둥근 모서리 */
-  font-size: 0.85rem; /* 폰트 크기 */
-  font-weight: 500; /* 폰트 두께 */
-  display: inline-block;
-  transition: background-color 0.3s, transform 0.2s;
-  cursor: pointer; /* 클릭 가능한 효과 */
+  background-color: #3e92cc;
+  color: #fff;
+  padding: 5px 12px;
+  border-radius: 12px;
+  font-size: 0.875rem;
 }
 
 .tag:hover {
-  background-color: #28527a; /* 호버 시 배경색 변화 */
-  transform: translateY(-3px); /* 호버 시 살짝 올라가는 효과 */
-}
-
-.tag:active {
-  background-color: #1d3e5b; /* 클릭 시 배경색 변화 */
-  transform: translateY(0); /* 클릭 시 원래 위치로 */
+  background-color: #28527a;
 }
 
 .highlight-author {
-  font-weight: bold;
-  color: #28527a; /* 강조할 색상 (원하는 색상으로 변경 가능) */
-  /* text-transform: uppercase; 대문자로 표시 (선택 사항) */
-  letter-spacing: 0.5px; /* 글자 간격 추가 (선택 사항) */
+  color: #90caf9;
+}
+
+/* 모바일 화면 레이아웃 조정 */
+@media (max-width: 768px) {
+  .nav-links {
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+  }
+
+  .articles {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  article {
+    flex: 1 1 100%;
+    max-width: 100%; 
+  }
+}
+
+/* 다크 모드 스타일 */
+body.dark-mode { 
+  background: #121212; 
+  color: #e0e0e0; 
+}
+
+body.dark-mode header, 
+body.dark-mode footer {
+  background: #1e1e1e;
+  color: #e0e0e0;
+}
+
+body.dark-mode nav,
+body.dark-mode .nav-links,
+body.dark-mode .auth-links {
+  background: #333;
+}
+
+body.dark-mode nav a,
+body.dark-mode .nav-links a,
+body.dark-mode .auth-links a {
+  color: #fff;
+}
+
+body.dark-mode section,
+body.dark-mode .content {
+  background: #1e1e1e;
+  color: #e0e0e0;
+}
+
+body.dark-mode article {
+  background-color: #1e1e1e;
+  border: 1px solid #444;
+}
+
+body.dark-mode .image {
+  background-color: #333;
+}
+
+body.dark-mode .content h3 {
+  color: #fff;
+}
+
+body.dark-mode .tag,
+body.dark-mode .viewer {
+  background-color: #555;
+  color: #e0e0e0;
+}
+
+body.dark-mode .tag:hover,
+body.dark-mode .nav-links a:hover,
+body.dark-mode .auth-links a:hover,
+body.dark-mode .pagination button:hover,
+body.dark-mode .theme-toggle:hover {
+  background-color: #555;
+  color: #fff;
+}
+
+body.dark-mode .highlight-author {
+  color: #90caf9;
+}
+
+body.dark-mode .theme-toggle {
+  background-color: #444;
+  color: #fff;
+}
+
+body.dark-mode .pagination button {
+  background-color: #333;
+}
+
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode .ql-container,
+body.dark-mode .ql-toolbar {
+  background-color: #333;
+  color: #e0e0e0;
+  border: 1px solid #555;
+}
+
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+  color: #888;
+}
+
+body.dark-mode .ql-toolbar .ql-picker,
+body.dark-mode .ql-toolbar .ql-picker-options {
+  background-color: #444;
+  color: #e0e0e0;
+}
+
+body.dark-mode .ql-toolbar button,
+body.dark-mode .ql-toolbar .ql-picker-label,
+body.dark-mode .ql-toolbar .ql-picker-item {
+  color: #e0e0e0;
+}
+
+body.dark-mode .ql-toolbar button:hover,
+body.dark-mode .ql-toolbar .ql-picker-label:hover,
+body.dark-mode .ql-toolbar .ql-picker-item:hover {
+  background-color: #555;
+  color: #fff;
+}
+
+body.dark-mode .ql-toolbar button.ql-active {
+  background-color: #555;
+  color: #fff;
+}
+
+body.dark-mode .ql-toolbar .ql-stroke,
+body.dark-mode .ql-toolbar .ql-fill {
+  stroke: #e0e0e0;
+  fill: #e0e0e0;
+}
+
+body.dark-mode .ql-snow .ql-tooltip {
+  background-color: #333;
+  color: #e0e0e0;
+}
+
+/* 버튼 스타일 공통화 */
+body.dark-mode .submitButton,
+body.dark-mode .addTagButton,
+body.dark-mode .addViewerButton {
+  background-color: #444;
+  color: #fff;
+  border: 1px solid #555;
+}
+
+body.dark-mode .submitButton:hover,
+body.dark-mode .addTagButton:hover,
+body.dark-mode .addViewerButton:hover {
+  background-color: #555;
 }

@@ -45,6 +45,10 @@
   margin-top: 30px; /* 버튼과 위의 폼 요소 간격 추가 */
 }
 
+body.dark-mode .submitButton {
+  color: #c9c9c9;
+}
+
 .submitButton:hover {
   background-color: #3e92cc;
 }
