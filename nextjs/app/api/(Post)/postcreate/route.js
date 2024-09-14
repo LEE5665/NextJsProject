@@ -13,19 +13,38 @@ if (!existsSync(UPLOAD_DIR)) {
 }
 
 export async function POST(req) {
-  const { title, content, id, password } = await req.json();
+  const { title, content, userId, password, tags } = await req.json();
 
   //const updatedContent = await handleImages(content);
 
-  if (id) {
+  if (!tags || tags.length === 0){
+    return new Response(JSON.stringify({ message: '태그를 추가해야합니다.' }), { status: 400 });
+  }
+
+  const handleTags = async (tags) => {
+
+    const tagConnectOrCreate = tags.map(tag => ({
+      where: { name: tag },
+      create: { name: tag },
+    }));
+
+    return tagConnectOrCreate;
+  };
+
+  const tagData = await handleTags(tags);
+
+  if (userId) {
     // 로그인된 사용자인 경우 (id가 존재하는 경우)
     console.log("성공: 로그인된 사용자");
     const response = await prisma.post.create({
       data: {
         title,
         content,
-        author: { connect: { id } },
+        author: { connect: { id: userId } },
         createdAt: dbNow,
+        tags: {
+          connectOrCreate: tagData,
+        },
       }
     });
     return new Response(JSON.stringify({ message: '성공' }), { status: 201 });
@@ -42,6 +61,9 @@ export async function POST(req) {
         title,
         content,
         password,
+        tags: {
+          connectOrCreate: tagData,
+        },
         createdAt: dbNow,
       },
     });

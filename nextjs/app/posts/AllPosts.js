@@ -71,37 +71,46 @@ export default function AllPosts({ searchParams }) {
 
   return (
     <div>
-      <section>
-        <h2>게시글 목록</h2>
-        <div className="articles">
-          {posts.map((post) => {
-            const firstImage = getFirstImageFromContent(post.content);
-            const postText = getTextFromContent(post.content);
-            return (
-              <article key={post.id} className={`article ${!firstImage ? 'no-image' : ''}`}>
-                <Link href={`/post/${post.id}`} className="no-underline">
-                  {firstImage && (
-                    <div
-                      className="image"
-                      style={{
-                        backgroundImage: `url(${firstImage})`,
-                      }}
-                    ></div>
-                  )}
-                  <div className="content">
-                    <h3>{post.title}</h3>
-                    <p>{postText.length > 100 ? `${postText.substring(0, 100)}...` : postText}</p>
-                    <div className="footer-info">
-                      <span className="author">{post.author?.nickname || '익명'}</span>
-                      <span className="view-count">VIEW {post.views || 0}</span>
-                    </div>
+  <section>
+    <h2>게시글 목록</h2>
+    <div className="articles">
+      {posts.map((post) => {
+        const firstImage = getFirstImageFromContent(post.content);
+        const postText = getTextFromContent(post.content);
+        return (
+          <article key={post.id} className={`article ${!firstImage ? 'no-image' : 'yes'}`}>
+            <Link href={`/post/${post.id}`} className="no-underline">
+              {firstImage && (
+                <div
+                  className="image"
+                  style={{
+                    backgroundImage: `url(${firstImage})`,
+                  }}
+                ></div>
+              )}
+              <div className="content">
+                <h3>{post.title}</h3>
+                <p>{postText.length > 100 ? `${postText.substring(0, 100)}...` : postText}</p>
+                {post.tags && post.tags.length > 0 && (
+                  <div className="tags">
+                    {post.tags.map((tag) => (
+                      <span key={tag.id} className="tag">
+                        #{tag.name}
+                      </span>
+                    ))}
                   </div>
-                </Link>
-              </article>
-            );
-          })}
-        </div>
-      </section>
+                )}
+                <div className="footer-info">
+                  <span className="author">{post.author?.nickname || '익명'}</span>
+                  <span className="view-count">VIEW {post.views || 0}</span>
+                </div>
+              </div>
+            </Link>
+          </article>
+        );
+      })}
+    </div>
+  </section>
 
       {/* 페이지네이션 */}
       <footer>

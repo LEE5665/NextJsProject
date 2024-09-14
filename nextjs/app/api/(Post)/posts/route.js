@@ -21,7 +21,8 @@ export async function GET(req) {
                 createdAt: 'desc'
             },
             include: {
-                author: true, // 작성자 정보 포함
+                author: true,
+                tags: true,
             },
         });
         const totalPosts = await prisma.post.count();
