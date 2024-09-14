@@ -69,6 +69,21 @@ export default function AllPosts({ searchParams }) {
   if (!posts)
     return (
       <div>
+              <header>
+        <h1>{headername}</h1>
+      </header>
+      <nav>
+      <button onClick={toggleTheme} className="theme-toggle">
+          {isDarkMode ? 'Light Mode' : 'Dark Mode'}
+    </button>
+        <div className="nav-links">
+          <Link href="/">홈</Link>
+          <Link href="/posts">모든 글</Link>
+          <a href="#">검색</a>
+          <Link href="/post">게시글 작성</Link>
+        </div>
+
+      </nav>
         <section>
           <h2>게시글 목록</h2>
           <div className="articles">

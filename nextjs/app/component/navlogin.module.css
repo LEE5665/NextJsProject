@@ -1,33 +1,33 @@
-.authLinks {
-    display: flex;
-    gap: 15px; /* 로그인과 회원가입 사이 간격 */
-    justify-content: flex-end; /* 우측 정렬 */
-    align-items: center; /* 수직 중앙 정렬 */
-    white-space: nowrap; /* 버튼들이 줄바꿈 없이 한 줄로 유지 */
-  }
-  
-  .authLink {
-    color: #555;
-    text-decoration: none;
-    padding: 10px 15px;
-  }
-  
-  .authLink:hover {
-    background-color: #3e92cc;
-    color: #fff;
-  }
-  
-  .logoutButton {
-    background-color: #28527a;
-    color: #fff;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-  }
-  
-  .logoutButton:hover {
-    background-color: #3e92cc;
-    transform: translateY(-3px);
-  }
+/* .auth-links {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: 10px;
+}
+
+.auth-links a {
+  color: #28527a;
+  text-decoration: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.auth-links a:hover {
+  background-color: #28527a;
+  color: #fff;
+}
+
+.logoutButton {
+  background: #e94e77;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.logoutButton:hover {
+  background-color: #c33a6d;
+} */

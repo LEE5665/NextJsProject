@@ -16,7 +16,7 @@ export default function Auth({ sessions }) {
     // 세션 정보가 없을 때
     if (!session) {
         return (
-            <div className={styles.authlinks}>
+            <div className="auth-links">
                 <Link href="/login">로그인</Link>
                 <Link href="/signup">회원가입</Link>
             </div>
