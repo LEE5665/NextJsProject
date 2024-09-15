@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import "react-quill/dist/quill.snow.css";
 import { useTheme } from "next-themes";
 import Link from "next/link";
+import Header from "../posts/Header";
 
 // 동적으로 ReactQuill 가져오기
 const ReactQuill = dynamic(async () => {
@@ -196,76 +197,76 @@ export default function NoticeEditor({ postToEdit = null, token }) {
     setNavActive(!navActive);
   };
 
-  const Header = () => (
-    <>
-      <header>
-        <div className="logo">개발 게시판</div>
-        <Auth />
-      </header>
+  // const Header = () => (
+  //   <>
+  //     <header>
+  //       <div className="logo">개발 게시판</div>
+  //       <Auth />
+  //     </header>
 
-      <nav>
-        <button
-          className="menu-toggle"
-          id="menuToggle"
-          aria-label={navActive ? '메뉴 닫기' : '메뉴 열기'}
-          onClick={toggleNavMenu}
-        >
-          ☰
-        </button>
-        <div className={`nav-menu ${navActive ? 'active' : ''}`} id="navMenu">
-          <div className="nav-links">
-            <Link href="/">홈</Link>
-            <Link href="/posts">모든 글</Link>
-            <Link href="/post">게시글 작성</Link>
-          </div>
-          <div className="search-bar">
-            <div className="search-options">
-              <label>
-                <input
-                  type="radio"
-                  name="search-filter"
-                  value="title"
-                  checked={searchFilter === 'title'}
-                  onChange={(e) => setSearchFilter(e.target.value)}
-                />
-                제목
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name="search-filter"
-                  value="author"
-                  checked={searchFilter === 'author'}
-                  onChange={(e) => setSearchFilter(e.target.value)}
-                />
-                이름
-              </label>
-            </div>
-            <input
-              type="text"
-              placeholder="검색..."
-              id="searchInput"
-              aria-label="검색어 입력"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={handleKeyPress}
-            />
-            <button
-              className="search-button"
-              id="searchButton"
-              aria-label="검색"
-              onClick={handleSearch}
-            >
-              검색
-            </button>
-          </div>
-          <button className="theme-toggle" id="themeToggle" onClick={toggleTheme} suppressHydrationWarning>
-            {theme === 'dark' ? '라이트 모드' : '다크 모드'}
-          </button>
-        </div>
-      </nav>
-    </>
-  );
+  //     <nav>
+  //       <button
+  //         className="menu-toggle"
+  //         id="menuToggle"
+  //         aria-label={navActive ? '메뉴 닫기' : '메뉴 열기'}
+  //         onClick={toggleNavMenu}
+  //       >
+  //         ☰
+  //       </button>
+  //       <div className={`nav-menu ${navActive ? 'active' : ''}`} id="navMenu">
+  //         <div className="nav-links">
+  //           <Link href="/">홈</Link>
+  //           <Link href="/posts">모든 글</Link>
+  //           <Link href="/post">게시글 작성</Link>
+  //         </div>
+  //         <div className="search-bar">
+  //           <div className="search-options">
+  //             <label>
+  //               <input
+  //                 type="radio"
+  //                 name="search-filter"
+  //                 value="title"
+  //                 checked={searchFilter === 'title'}
+  //                 onChange={(e) => setSearchFilter(e.target.value)}
+  //               />
+  //               제목
+  //             </label>
+  //             <label>
+  //               <input
+  //                 type="radio"
+  //                 name="search-filter"
+  //                 value="author"
+  //                 checked={searchFilter === 'author'}
+  //                 onChange={(e) => setSearchFilter(e.target.value)}
+  //               />
+  //               이름
+  //             </label>
+  //           </div>
+  //           <input
+  //             type="text"
+  //             placeholder="검색..."
+  //             id="searchInput"
+  //             aria-label="검색어 입력"
+  //             value={searchQuery}
+  //             onChange={(e) => setSearchQuery(e.target.value)}
+  //             onKeyPress={handleKeyPress}
+  //           />
+  //           <button
+  //             className="search-button"
+  //             id="searchButton"
+  //             aria-label="검색"
+  //             onClick={handleSearch}
+  //           >
+  //             검색
+  //           </button>
+  //         </div>
+  //         <button className="theme-toggle" id="themeToggle" onClick={toggleTheme} suppressHydrationWarning>
+  //           {theme === 'dark' ? '라이트 모드' : '다크 모드'}
+  //         </button>
+  //       </div>
+  //     </nav>
+  //   </>
+  // );
 
   const handleSearch = () => {
     if (searchQuery.trim() === '') {
@@ -277,16 +278,16 @@ export default function NoticeEditor({ postToEdit = null, token }) {
     // 예: router.push(`/search?filter=${searchFilter}&query=${searchQuery}`);
   };
 
-  const Auth = () => (
-    <div className="auth-buttons">
-      <button id="loginButton">
-        로그인
-      </button>
-      <button id="signupButton">
-        회원가입
-      </button>
-    </div>
-  );
+  // const Auth = () => (
+  //   <div className="auth-buttons">
+  //     <button id="loginButton">
+  //       로그인
+  //     </button>
+  //     <button id="signupButton">
+  //       회원가입
+  //     </button>
+  //   </div>
+  // );
 
   return (
     <div className="bg-background-color dark:bg-background-color-dark text-text-primary dark:text-text-primary-dark">

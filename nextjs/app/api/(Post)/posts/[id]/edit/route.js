@@ -84,6 +84,7 @@ export async function PUT(req, { params }) {
         updatedAt: dbNow,
         isPrivate, // 비공개 여부 업데이트
         tags: {
+          set: [],
           connectOrCreate: tagData,  // 태그 데이터 연결 또는 생성
         },
         viewers: isPrivate ? {
