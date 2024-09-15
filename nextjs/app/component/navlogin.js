@@ -2,7 +2,6 @@
 
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
-import styles from './navlogin.module.css';
 import { useSession } from 'next-auth/react';
 
 export default function Auth({ sessions }) {
@@ -16,20 +15,24 @@ export default function Auth({ sessions }) {
     // 세션 정보가 없을 때
     if (!session) {
         return (
-            <div className="auth-links">
-                <Link href="/login">로그인</Link>
-                <Link href="/signup">회원가입</Link>
+            <div className="auth-buttons">
+            <Link href="/login"><button>
+                로그인
+              </button></Link>
+              <Link href="/signup"><button>
+                회원가입
+              </button></Link>
             </div>
         );
     }
 
     // 세션 정보가 있을 때
     return (
-        <div className="auth-links">
+        <div className="auth-buttons">
             <span>{session.user.nickname}님 환영합니다!</span>
-            <button onClick={() => signOut()} className={styles.logoutButton}>
+              <Link href="/"><button onClick={() => signOut()}>
                 로그아웃
-            </button>
+              </button></Link>
         </div>
     );
 }

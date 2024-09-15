@@ -1,4 +1,13 @@
-/* CSS 변수 설정 */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* styles/global.css */
+
+/* CSS Variables */
+/* styles/globals.css */
+
+/* CSS Variables */
 :root {
   --primary-color: #28527a;
   --secondary-color: #3e92cc;
@@ -23,14 +32,16 @@
   --button-hover-bg: #3e92cc;
   --box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   --transition-speed: 0.3s;
+  --border-radius: 8px;
+  --tag-bg-color: #e0e0e0;
+  --tag-text-color: #333333;
+  --tag-border-radius: 12px;
+  --author-color: #777777;
+  --views-color: #777777;
 }
 
-body {
-  font-family: var(--noto-sans_KR-bold);
-}
-
-/* 다크 모드 변수 */
-body.dark-mode {
+/* Dark Mode Variables */
+:root.dark {
   --background-color: #121212;
   --card-bg: #1e1e1e;
   --card-border: #333333;
@@ -47,16 +58,16 @@ body.dark-mode {
   --toggle-bg: #555555;
   --toggle-text: #ffffff;
   --toggle-hover-bg: #666666;
-  --button-bg: #444444;
+  --button-bg: #444444a8;
   --button-text: #ffffff;
   --button-hover-bg: #555555;
-  --box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* 동일하게 유지 */
+  --tag-bg-color: #555555;
+  --tag-text-color: #ffffff;
+  --author-color: #aaaaaa;
+  --views-color: #aaaaaa;
 }
 
-html {
-  font-family: var(---noto-sans_KR-bold);
-}
-/* 기본 리셋 */
+/* Reset and Base Styles */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -64,7 +75,7 @@ html {
 }
 
 body {
-  font-family: var(--noto-sans_KR-bold);
+  font-family: 'Noto Sans KR', sans-serif;
   background-color: var(--background-color);
   color: var(--text-primary);
   line-height: 1.6;
@@ -74,9 +85,14 @@ body {
 a {
   text-decoration: none;
   color: inherit;
+  transition: color var(--transition-speed);
 }
 
-/* 헤더 스타일 */
+a:hover {
+  color: var(--secondary-color);
+}
+
+/* Header Styles */
 header {
   background-color: var(--header-bg);
   color: var(--header-text);
@@ -104,14 +120,21 @@ header .auth-buttons button {
   margin-left: 10px;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color var(--transition-speed);
+  transition: background-color var(--transition-speed), transform var(--transition-speed);
+  font-size: 0.875rem;
 }
 
 header .auth-buttons button:hover {
   background-color: var(--button-hover-bg);
+  transform: translateY(-2px);
 }
 
-/* 네비게이션 바 스타일 */
+header .auth-buttons button:focus {
+  outline: 2px solid var(--secondary-color);
+  outline-offset: 2px;
+}
+
+/* Navigation Styles */
 nav {
   background-color: var(--nav-bg);
   padding: 10px 40px;
@@ -119,24 +142,48 @@ nav {
   justify-content: space-between;
   align-items: center;
   box-shadow: var(--box-shadow);
-  transition: background-color var(--transition-speed); /* box-shadow는 동일하게 유지 */
+  transition: background-color var(--transition-speed);
   position: sticky;
   top: 70px;
   z-index: 999;
 }
 
-.nav-links {
+/* Nav Menu */
+.nav-menu {
   display: flex;
-  gap: 20px;
   align-items: center;
+  gap: 20px;
+  width: 100%;
+  justify-content: space-between;
+  transition: all var(--transition-speed);
 }
 
+/* Navigation Links */
 .nav-links a {
   padding: 8px 12px;
   border-radius: 4px;
   transition: background-color var(--transition-speed), color var(--transition-speed);
   color: var(--nav-link-color);
   font-weight: 500;
+  white-space: nowrap;
+  position: relative;
+}
+
+.nav-links a::after {
+  content: '';
+  display: block;
+  width: 0;
+  height: 2px;
+  background: var(--secondary-color);
+  transition: width var(--transition-speed);
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.nav-links a:hover::after {
+  width: 100%;
 }
 
 .nav-links a:hover {
@@ -144,15 +191,40 @@ nav {
   color: var(--nav-link-hover-text);
 }
 
+/* Theme Toggle Button */
+.theme-toggle {
+  background-color: var(--toggle-bg);
+  color: var(--toggle-text);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color var(--transition-speed), transform var(--transition-speed);
+  font-size: 0.875rem;
+}
+
+.theme-toggle:hover {
+  background-color: var(--toggle-hover-bg);
+  transform: translateY(-2px);
+}
+
+.theme-toggle:focus {
+  outline: 2px solid var(--secondary-color);
+  outline-offset: 2px;
+}
+
+/* Search Bar Styles */
 .search-bar {
   display: flex;
   align-items: center;
   gap: 10px;
   position: relative;
+  flex: 1;
+  max-width: 400px;
 }
 
 .search-bar input[type="text"] {
-  width: 250px;
+  flex: 1;
   padding: 8px 12px;
   border: 1px solid var(--card-border);
   border-radius: 4px;
@@ -160,6 +232,7 @@ nav {
   transition: border-color var(--transition-speed);
   background-color: var(--card-bg);
   color: var(--text-primary);
+  font-size: 0.875rem;
 }
 
 .search-bar input[type="text"]:focus {
@@ -170,12 +243,15 @@ nav {
   display: flex;
   gap: 10px;
   align-items: center;
+  flex-wrap: nowrap;
 }
 
 .search-bar .search-options label {
   font-size: 0.875rem;
   color: var(--text-secondary);
   cursor: pointer;
+  display: flex;
+  align-items: center;
 }
 
 .search-bar .search-options input {
@@ -192,6 +268,9 @@ nav {
   cursor: pointer;
   transition: background-color var(--transition-speed), transform var(--transition-speed);
   font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .search-bar .search-button:hover {
@@ -199,23 +278,12 @@ nav {
   transform: translateY(-2px);
 }
 
-.theme-toggle {
-  background-color: var(--toggle-bg);
-  color: var(--toggle-text);
-  border: none;
-  padding: 8px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color var(--transition-speed); /* transform 제거 */
-  margin-left: 20px;
-  font-size: 0.875rem;
+.search-bar .search-button:focus {
+  outline: 2px solid var(--secondary-color);
+  outline-offset: 2px;
 }
 
-.theme-toggle:hover {
-  background-color: var(--toggle-hover-bg);
-}
-
-/* 모바일 메뉴 버튼 */
+/* Mobile Menu Toggle Button */
 .menu-toggle {
   display: none;
   background-color: var(--toggle-bg);
@@ -233,7 +301,12 @@ nav {
   transform: translateY(-2px);
 }
 
-/* 메인 콘텐츠 스타일 */
+.menu-toggle:focus {
+  outline: 2px solid var(--secondary-color);
+  outline-offset: 2px;
+}
+
+/* Main Content Styles */
 main {
   padding: 40px;
   max-width: 1200px;
@@ -251,6 +324,17 @@ section h2 {
   border-bottom: 2px solid var(--secondary-color);
   display: inline-block;
   padding-bottom: 5px;
+  position: relative;
+}
+
+section h2::before {
+  content: '';
+  position: absolute;
+  width: 50px;
+  height: 2px;
+  background-color: var(--secondary-color);
+  bottom: -2px;
+  left: 0;
 }
 
 .articles {
@@ -262,17 +346,18 @@ section h2 {
 .article {
   background-color: var(--card-bg);
   border: 1px solid var(--card-border);
-  border-radius: 8px;
+  border-radius: var(--border-radius);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   transition: transform var(--transition-speed), box-shadow var(--transition-speed);
   height: 100%;
+  box-shadow: var(--box-shadow);
 }
 
 .article:hover {
   transform: translateY(-5px);
-  box-shadow: var(--box-shadow);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 .article .image {
@@ -280,6 +365,7 @@ section h2 {
   height: 150px;
   background-size: cover;
   background-position: center;
+  border-bottom: 1px solid var(--card-border);
 }
 
 .article .content {
@@ -299,7 +385,16 @@ section h2 {
   text-overflow: ellipsis;
 }
 
-.article .content p {
+.article .content p.meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 0.75rem;
+  color: var(--author-color);
+}
+
+.article .content p.preview {
   flex-grow: 1;
   color: var(--text-secondary);
   margin-bottom: 10px;
@@ -308,16 +403,31 @@ section h2 {
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.article .content .author {
   font-size: 0.875rem;
-  color: var(--text-secondary);
-  font-weight: bold;
-  text-align: right;
+  line-height: 1.4;
 }
 
-/* 푸터 스타일 */
+.article .content .tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.article .content .tags .tag {
+  background-color: var(--tag-bg-color);
+  color: var(--tag-text-color);
+  padding: 3px 8px;
+  border-radius: var(--tag-border-radius);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.article .content .tags .tag.dark-mode {
+  background-color: #555555;
+  color: #ffffff;
+}
+
+/* Footer Styles */
 footer {
   background-color: var(--footer-bg);
   color: var(--footer-text);
@@ -332,19 +442,15 @@ footer p {
   font-size: 0.875rem;
 }
 
-/* 반응형 디자인 */
-@media (max-width: 992px) {
-  header, nav, main, footer {
-    padding: 20px;
-  }
-
-  .search-bar input[type="text"] {
-    width: 200px;
-  }
-}
-
+/* Responsive Design */
 @media (max-width: 768px) {
-  .nav-links {
+  /* Show menu toggle button */
+  .menu-toggle {
+    display: block;
+  }
+
+  /* Hide nav-menu by default */
+  .nav-menu {
     position: absolute;
     top: 60px;
     left: 0;
@@ -355,31 +461,139 @@ footer p {
     gap: 10px;
     padding: 20px 0;
     display: none;
+    box-shadow: var(--box-shadow);
   }
 
-  .nav-links.active {
+  /* Show nav-menu when active */
+  .nav-menu.active {
     display: flex;
   }
 
-  .menu-toggle {
-    display: block;
+  /* Arrange nav-links vertically */
+  .nav-links {
+    flex-direction: column;
+    gap: 10px;
   }
 
+  /* Make search bar full width */
   .search-bar {
     flex-direction: column;
     align-items: stretch;
-    width: 100%;
+    width: 80%;
   }
 
   .search-bar input[type="text"] {
     width: 100%;
   }
 
-  .search-bar .search-options {
-    justify-content: center;
-  }
-
   .search-bar .search-button {
     width: 100%;
   }
+
+  /* Make theme toggle full width */
+  .theme-toggle {
+    width: 80%;
+    margin-top: 10px;
+  }
+
+  /* Keep radio buttons horizontal on mobile */
+  .search-bar .search-options {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .search-bar .search-options label {
+    font-size: 0.9rem;
+  }
+
+  /* Align meta info vertically */
+  .article .content p.meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+}
+
+/* Desktop Layout Styles */
+@media (min-width: 769px) {
+  nav {
+    padding: 10px 40px;
+  }
+
+  .nav-menu {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 20px;
+    justify-content: flex-start;
+  }
+
+  .search-bar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    max-width: 400px;
+  }
+
+  .theme-toggle {
+    /* Positioned to the right by default */
+  }
+
+  /* Hide menu toggle button */
+  .menu-toggle {
+    display: none;
+  }
+
+  /* Keep radio buttons horizontal on desktop */
+  .search-bar .search-options {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .search-bar .search-options label {
+    display: flex;
+    align-items: center;
+  }
+}
+
+.pagination-container {
+  margin-top: 20px;
+  text-align: center;
+}
+
+/* Pagination Buttons */
+.pagination button {
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  border: none;
+  padding: 8px 16px;
+  margin: 5px;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: background-color var(--transition-speed), transform var(--transition-speed);
+}
+
+.pagination button:hover {
+  background-color: var(--button-hover-bg);
+  transform: translateY(-2px);
+}
+
+.pagination button:disabled {
+  background-color: var(--tag-bg-color);
+  cursor: not-allowed;
+}
+
+.pagination .active {
+  background-color: var(--secondary-color);
+  color: var(--button-text);
 }
