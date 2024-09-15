@@ -1,6 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import dayjs from 'dayjs';
 import jwt from 'jsonwebtoken'; // JWT 토큰을 사용하여 비밀번호 대체
+import path from 'path';
+import fs from 'fs';
 
 const prisma = new PrismaClient();
 
@@ -39,6 +41,30 @@ export async function PUT(req, { params }) {
     return viewerConnect;
   };
 
+    // 이미지 URL 추출 함수
+    const extractImageUrls = (content) => {
+      const regex = /<img src="(.*?)"/g;
+      let match;
+      const urls = [];
+  
+      while ((match = regex.exec(content)) !== null) {
+        urls.push(match[1]); // 이미지 경로 추출
+      }
+  
+      return urls;
+    };
+  
+    // 로컬 이미지 삭제 함수
+    const removeUnusedLocalImages = (unusedImages) => {
+      unusedImages.forEach((imagePath) => {
+        const localPath = path.join(process.cwd(), 'public', 'uploads', path.basename(imagePath)); // 로컬 경로 설정
+        if (fs.existsSync(localPath)) {
+          fs.unlinkSync(localPath); // 로컬 파일 삭제
+          console.log(`로컬 이미지 삭제됨: ${localPath}`);
+        }
+      });
+    };
+
   try {
     const tagData = await handleTags(tags);
     console.log("tagData:", tagData);  // 태그 데이터가 올바르게 생성되었는지 로그 출력
@@ -61,7 +87,7 @@ export async function PUT(req, { params }) {
       const postId = decoded.postId;
 
       post = await prisma.post.findUnique({
-        where: { id: Number(postId) },
+        where: { id: Number(id) },
       });
 
       if (!post) {
@@ -70,6 +96,15 @@ export async function PUT(req, { params }) {
     } else {
       return new Response(JSON.stringify({ message: '인증 정보가 없습니다.' }), { status: 403 });
     }
+
+    const originalImageUrls = extractImageUrls(post.content); // 원본 게시글에서 이미지 URL 추출
+    const updatedImageUrls = extractImageUrls(content); // 업데이트된 게시글에서 이미지 URL 추출
+
+        // 삭제할 이미지 URL 목록 (업데이트된 content에서 사라진 이미지)
+        const unusedImageUrls = originalImageUrls.filter((url) => !updatedImageUrls.includes(url));
+
+        // 로컬 파일 시스템에서 사라진 이미지 삭제
+        removeUnusedLocalImages(unusedImageUrls);
 
     let viewerData = [];
     if (isPrivate && viewers && viewers.length > 0) {
