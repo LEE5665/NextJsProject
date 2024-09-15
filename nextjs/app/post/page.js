@@ -95,6 +95,13 @@ export default function NoticeEditor({ postToEdit = null, token }) {
   // 게시글 저장 핸들러
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if(tags.length == 0){
+      alert("태그를 1개 이상 추가해 주세요.");
+      return;
+    }
+    const submitButton = e.target.querySelector("button[type='submit']");
+    submitButton.disabled = true;
     try {
       const tempDiv = document.createElement("div");
       tempDiv.innerHTML = content;
@@ -132,13 +139,13 @@ export default function NoticeEditor({ postToEdit = null, token }) {
           token: postToEdit ? token : null
         }
       });
-
       if (response.status === 200 || response.status === 201) {
         alert(postToEdit ? "게시글이 수정되었습니다." : "게시글이 작성되었습니다.");
         router.push("/posts");
       }
     } catch (error) {
       console.log("게시글 처리 중 오류 발생:", error);
+      submitButton.disabled = false;
     }
   };
 

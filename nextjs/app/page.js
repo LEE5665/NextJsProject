@@ -53,6 +53,12 @@ export default function Home() {
     <div>
       <Header/>
       <main>
+      <section>
+          <h2>환영합니다!</h2>
+          <p>
+            최신 기술과 개발 트렌드를 공유하고 토론하세요. 여러분의 지식과 경험을 나누는 공간입니다.
+          </p>
+        </section>
         {loading ? (
           <p>로딩 중...</p>
         ) : (
