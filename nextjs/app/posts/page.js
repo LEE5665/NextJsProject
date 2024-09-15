@@ -1,28 +1,29 @@
-// pages/posts/AllPosts.js
 'use client'; // 클라이언트 컴포넌트 선언
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import Head from 'next/head';
 import { useTheme } from 'next-themes';
+import Header from './Header';
 
 export default function AllPosts({ searchParams }) {
   const [posts, setPosts] = useState(null);
   const [totalPages, setTotalPages] = useState(1);
   const currentPage = parseInt(searchParams?.page || '1');
+  const filter = searchParams.filter;
+  const search = searchParams.search;
   const pageSize = 12;
   const groupSize = 5;
 
-  const { theme, setTheme } = useTheme(); // next-themes 사용
+  const { theme, setTheme } = useTheme();
   const [navActive, setNavActive] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
-  // 테마 초기 설정
-  useEffect(() => {
-    // next-themes가 이미 테마를 설정하므로 추가 설정 불필요
-  }, []);
+  // 검색 관련 상태 관리
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchFilter, setSearchFilter] = useState('title');
 
   // 테마 토글 함수
   const toggleTheme = () => {
@@ -31,12 +32,16 @@ export default function AllPosts({ searchParams }) {
 
   // 게시글 데이터 패칭
   useEffect(() => {
+    setMounted(true);
+    // 게시글 데이터 패칭
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/posts`, {
+        const response = await axios.get(`/api/posts`, {
           params: {
             page: currentPage,
             pageSize: pageSize,
+            filter,
+            search
           },
         });
         setPosts(response.data.posts);
@@ -47,47 +52,51 @@ export default function AllPosts({ searchParams }) {
     };
 
     fetchData();
-  }, [currentPage]);
+  }, [currentPage, filter, search]);
 
-  // 모바일 네비게이션 토글
-  const toggleNavMenu = () => {
-    setNavActive(!navActive);
-  };
+  // // 모바일 네비게이션 토글
+  // const toggleNavMenu = () => {
+  //   setNavActive(!navActive);
+  // };
 
-  // 검색 관련 상태 관리
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchFilter, setSearchFilter] = useState('title');
+  // const handleSearch = () => {
+  //   if (searchQuery.trim() === '') {
+  //     alert('검색어를 입력해주세요!');
+  //     return;
+  //   }
+  //   alert(`"${searchFilter}" 기준으로 "${searchQuery}" 검색!`);
+  //   // 실제 검색 로직 구현 필요
+  //   // 예: router.push(`/search?filter=${searchFilter}&query=${searchQuery}`);
+  // };
 
-  const handleSearch = () => {
-    if (searchQuery.trim() === '') {
-      alert('검색어를 입력해주세요!');
-      return;
-    }
-    alert(`"${searchFilter}" 기준으로 "${searchQuery}" 검색!`);
-    // 실제 검색 로직 구현 필요
-    // 예: router.push(`/search?filter=${searchFilter}&query=${searchQuery}`);
-  };
+  // const handleKeyPress = (e) => {
+  //   if (e.key === 'Enter') {
+  //     handleSearch();
+  //   }
+  // };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
-  };
+  // // 로그인 및 회원가입 핸들러 (예시)
+  // const handleLogin = () => {
+  //   alert('로그인 버튼 클릭!');
+  //   // 실제 로그인 로직 구현 필요
+  // };
 
-  // 로그인 및 회원가입 핸들러 (예시)
-  const handleLogin = () => {
-    alert('로그인 버튼 클릭!');
-    // 실제 로그인 로직 구현 필요
-  };
-
-  const handleSignup = () => {
-    alert('회원가입 버튼 클릭!');
-    // 실제 회원가입 로직 구현 필요
-  };
+  // const handleSignup = () => {
+  //   alert('회원가입 버튼 클릭!');
+  //   // 실제 회원가입 로직 구현 필요
+  // };
 
   // 페이징 핸들러
   const handlePageChange = (newPage) => {
-    router.push(`/posts/?page=${newPage}`);
+    const queryParams = new URLSearchParams();
+    queryParams.append("page", newPage);
+    if (search) {
+      queryParams.append("filter", filter);
+    }
+    if (filter) {
+      queryParams.append("search", search);
+    }
+    router.push(`/posts?${queryParams.toString()}`);
   };
 
   const handlePreviousGroup = () => {
@@ -127,89 +136,92 @@ export default function AllPosts({ searchParams }) {
     return doc.body.textContent || '';
   };
 
-  // 인증 버튼 컴포넌트 (실제 구현 필요)
-  const Auth = () => (
-    <div className="auth-buttons">
-      <button onClick={handleLogin} id="loginButton">
-        로그인
-      </button>
-      <button onClick={handleSignup} id="signupButton">
-        회원가입
-      </button>
-    </div>
-  );
+  // // 인증 버튼 컴포넌트 (실제 구현 필요)
+  // const Auth = () => (
+  //   <div className="auth-buttons">
+  //     <button onClick={handleLogin} id="loginButton">
+  //       로그인
+  //     </button>
+  //     <button onClick={handleSignup} id="signupButton">
+  //       회원가입
+  //     </button>
+  //   </div>
+  // );
 
   // 헤더 및 네비게이션 컴포넌트
-  const Header = () => (
-    <>
-      <header>
-        <div className="logo">개발 게시판</div>
-        <Auth />
-      </header>
+  // const Header = () => (
+  //   <>
+  //     <header>
+  //       <div className="logo">개발 게시판</div>
+  //       <Auth />
+  //     </header>
 
-      <nav>
-        <button
-          className="menu-toggle"
-          id="menuToggle"
-          aria-label={navActive ? '메뉴 닫기' : '메뉴 열기'}
-          onClick={toggleNavMenu}
-        >
-          ☰
-        </button>
-        <div className={`nav-menu ${navActive ? 'active' : ''}`} id="navMenu">
-          <div className="nav-links">
-            <Link href="/">홈</Link>
-            <Link href="/posts">모든 글</Link>
-            <Link href="/post">게시글 작성</Link>
-          </div>
-          <div className="search-bar">
-            <div className="search-options">
-              <label>
-                <input
-                  type="radio"
-                  name="search-filter"
-                  value="title"
-                  checked={searchFilter === 'title'}
-                  onChange={(e) => setSearchFilter(e.target.value)}
-                />
-                제목
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name="search-filter"
-                  value="author"
-                  checked={searchFilter === 'author'}
-                  onChange={(e) => setSearchFilter(e.target.value)}
-                />
-                이름
-              </label>
-            </div>
-            <input
-              type="text"
-              placeholder="검색..."
-              id="searchInput"
-              aria-label="검색어 입력"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={handleKeyPress}
-            />
-            <button
-              className="search-button"
-              id="searchButton"
-              aria-label="검색"
-              onClick={handleSearch}
-            >
-              검색
-            </button>
-          </div>
-          <button className="theme-toggle" id="themeToggle" onClick={toggleTheme} suppressHydrationWarning>
-            {theme === 'dark' ? '라이트 모드' : '다크 모드'}
-          </button>
-        </div>
-      </nav>
-    </>
-  );
+  //     <nav>
+  //       <button
+  //         className="menu-toggle"
+  //         id="menuToggle"
+  //         aria-label={navActive ? '메뉴 닫기' : '메뉴 열기'}
+  //         onClick={toggleNavMenu}
+  //       >
+  //         ☰
+  //       </button>
+  //       <div className={`nav-menu ${navActive ? 'active' : ''}`} id="navMenu">
+  //         <div className="nav-links">
+  //           <Link href="/">홈</Link>
+  //           <Link href="/posts">모든 글</Link>
+  //           <Link href="/post">게시글 작성</Link>
+  //         </div>
+  //         <div className="search-bar">
+  //           <div className="search-options">
+  //             <label>
+  //               <input
+  //                 type="radio"
+  //                 name="search-filter"
+  //                 value="title"
+  //                 checked={searchFilter === 'title'}
+  //                 onChange={(e) => setSearchFilter(e.target.value)}
+  //               />
+  //               제목
+  //             </label>
+  //             <label>
+  //               <input
+  //                 type="radio"
+  //                 name="search-filter"
+  //                 value="author"
+  //                 checked={searchFilter === 'author'}
+  //                 onChange={(e) => setSearchFilter(e.target.value)}
+  //               />
+  //               이름
+  //             </label>
+  //           </div>
+  //           <input
+  //             type="text"
+  //             placeholder="검색..."
+  //             id="searchInput"
+  //             aria-label="검색어 입력"
+  //             value={searchQuery}
+  //             onChange={(e) => setSearchQuery(e.target.value)}
+  //             onKeyDown={handleKeyPress}
+  //             key="key"
+  //           />
+  //           <button
+  //             className="search-button"
+  //             id="searchButton"
+  //             aria-label="검색"
+  //             onClick={handleSearch}
+  //           >
+  //             검색
+  //           </button>
+  //         </div>
+  //         {mounted && (
+  //           <button className="theme-toggle" id="themeToggle" onClick={toggleTheme}>
+  //             {theme === 'dark' ? '라이트 모드' : '다크 모드'}
+  //           </button>
+  //         )}
+  //       </div>
+  //     </nav>
+  //   </>
+  // );
 
   // 게시글이 로드되지 않았을 때 로딩 상태 표시
   if (!posts)
@@ -256,16 +268,14 @@ export default function AllPosts({ searchParams }) {
 
   return (
     <div>
-      {/* 헤더 및 네비게이션 */}
       <Header />
-
-      {/* 메인 콘텐츠 */}
       <main>
         {/* 게시글 목록 섹션 */}
         <section>
           <h2>게시글 목록</h2>
           <div className="articles">
-            {posts.map((post) => {
+          {posts.length > 0 ? (
+            posts.map((post) => {
               const firstImage = getFirstImageFromContent(post.content);
               const postText = getTextFromContent(post.content);
               return (
@@ -299,15 +309,17 @@ export default function AllPosts({ searchParams }) {
                 </article>
                 </Link>
               );
-            })}
+            })
+          ) : (<p>{search && filter ? "검색 결과가 없습니다." : "게시글이 없습니다."}</p>)}
           </div>
         </section>
                   {/* 페이징 처리 */}
                   <section className="pagination-container">
             <div className="pagination">
-              <button onClick={handlePreviousGroup} disabled={currentPage <= groupSize}>
+              {!posts.length > 0 || (<button onClick={handlePreviousGroup} disabled={currentPage <= groupSize}>
                 이전
-              </button>
+              </button>)}
+
               {getPageNumbersForCurrentGroup().map((page) => (
                 <button
                   key={page}
@@ -318,9 +330,10 @@ export default function AllPosts({ searchParams }) {
                   {page}
                 </button>
               ))}
-              <button onClick={handleNextGroup} disabled={currentPage >= totalPages}>
+              {!posts.length > 0 || (<button onClick={handleNextGroup} disabled={currentPage >= totalPages}>
                 다음
-              </button>
+              </button>)}
+
             </div>
           </section>
       </main>

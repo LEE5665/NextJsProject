@@ -10,6 +10,8 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get('page')) || 1;
     const pageSize = parseInt(searchParams.get('pageSize')) || 15;
+    const filter = searchParams.get('filter');
+    const search = searchParams.get('search');
 
     const skip = (page - 1) * pageSize;
     const take = pageSize;
@@ -20,22 +22,46 @@ export async function GET(req) {
         const userId = session?.user?.id || null;
         const userNickname = session?.user?.nickname || null;
 
-        const conditions = [
-            { isPrivate: false } // 공개된 게시글
-        ];
+        let conditions = { isPrivate: false };
 
         // 세션이 있는 경우 추가적인 조건 추가
+        // if (session) {
+        //     conditions.push({ authorId: userId }); // 내가 작성한 게시글
+        //     conditions.push({ viewers: { some: { nickname: userNickname } } }); // 내가 볼 수 있는 비공개 게시글
+        // }
         if (session) {
-            conditions.push({ authorId: userId }); // 내가 작성한 게시글
-            conditions.push({ viewers: { some: { nickname: userNickname } } }); // 내가 볼 수 있는 비공개 게시글
+            conditions = {
+                OR: [
+                    { authorId: userId }, // 내가 작성한 게시글
+                    { viewers: { some: { nickname: userNickname } } } // 내가 볼 수 있는 비공개 게시글
+                ]
+            };
         }
 
+        if (search && filter) {
+            switch (filter) {
+                case 'title':
+                    conditions = {
+                        AND: [
+                            conditions,
+                            { title: { contains: search } } // 제목이 정확히 일치하는 경우
+                        ]
+                    };
+                    break;
+                case 'tag':
+                    conditions = {
+                        AND: [
+                            conditions,
+                            { tags: { some: { name: { contains: search } } } } // 태그가 정확히 일치하는 경우
+                        ]
+                    };
+                    break;
+            }
+        }
         const posts = await prisma.post.findMany({
             skip,
             take,
-            where: {
-                OR: conditions, // 조건 배열
-            },
+            where: conditions,
             orderBy: {
                 createdAt: 'desc'
             },
@@ -46,9 +72,7 @@ export async function GET(req) {
             },
         });
         const totalPosts = await prisma.post.count({
-            where: {
-                OR: conditions, // 조건 배열
-            },
+            where: conditions,
         });
         console.log("가져온 게시글 수:", posts.length);
         return new Response(JSON.stringify({ posts, totalPosts }), {

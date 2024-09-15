@@ -137,7 +137,7 @@ export default function PostDetail({ params }) {
       <footer className="mt-6">
         {(isAuthor || !post.author) && (
           <div className="flex gap-4">
-            <button className="px-4 py-2 bg-[var(--button-bg)] text-[var(--button-text)] rounded-lg hover:bg-[var(--button-hover-bg)] transition">
+            <button className="px-4 py-2 bg-[var(--button-bg)] text-[var(--button-text)] rounded-lg hover:bg-[var(--button-hover-bg)] transition" onClick={handleDelete}>
               삭제하기
             </button>
             <button className="px-4 py-2 bg-[var(--button-bg)] text-[var(--button-text)] rounded-lg hover:bg-[var(--button-hover-bg)] transition" onClick={handleEdit}>
