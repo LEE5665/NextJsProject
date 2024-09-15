@@ -1,6 +1,0 @@
-.auth-links {
-  display: flex; /* 또는 block, inline-block 등 */
-  align-items: center; /* 수직 정렬 */
-  justify-content: space-between; /* 요소 간의 간격 조정 */
-  margin: 10px 0; /* 위아래 여백 */
-}
