@@ -1,14 +1,18 @@
 'use client'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import Nav from './component/navlogin.js'
 
 export default function Home() {
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [navActive, setNavActive] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchFilter, setSearchFilter] = useState('title');
+
+  // When mounted on client, now we can show the UI
+  useEffect(() => setMounted(true), []);
 
   // Handle theme change
   const toggleTheme = () => {
@@ -97,8 +101,7 @@ export default function Home() {
               aria-label="검색어 입력"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={handleKeyPress}
-              key="key"
+              onKeyPress={handleKeyPress}
             />
             <button
               className="search-button"
@@ -109,9 +112,11 @@ export default function Home() {
               검색
             </button>
           </div>
+          {mounted && (
             <button className="theme-toggle" id="themeToggle" onClick={toggleTheme}>
               {theme === 'dark' ? '라이트 모드' : '다크 모드'}
             </button>
+          )}
         </div>
       </nav>
 

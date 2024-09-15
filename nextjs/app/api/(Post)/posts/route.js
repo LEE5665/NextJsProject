@@ -32,6 +32,7 @@ export async function GET(req) {
         if (session) {
             conditions = {
                 OR: [
+                    { isPrivate: false },
                     { authorId: userId }, // 내가 작성한 게시글
                     { viewers: { some: { nickname: userNickname } } } // 내가 볼 수 있는 비공개 게시글
                 ]
