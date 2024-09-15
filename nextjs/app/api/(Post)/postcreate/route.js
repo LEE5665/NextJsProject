@@ -2,7 +2,6 @@ import { PrismaClient } from "@prisma/client";
 import dayjs from 'dayjs';
 
 const prisma = new PrismaClient();
-const dbNow = dayjs().add(9, 'hour').toDate();
 const path = require("path");
 const fs = require("fs").promises;
 const { existsSync, mkdirSync } = require("fs");
@@ -14,6 +13,8 @@ if (!existsSync(UPLOAD_DIR)) {
 
 export async function POST(req) {
   const { title, content, userId, password, tags, isPrivate, viewers } = await req.json();
+
+  const dbNow = dayjs().add(9, 'hour').toDate();
 
   //const updatedContent = await handleImages(content);
 

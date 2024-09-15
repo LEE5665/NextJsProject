@@ -3,11 +3,12 @@ import dayjs from 'dayjs';
 import jwt from 'jsonwebtoken'; // JWT 토큰을 사용하여 비밀번호 대체
 
 const prisma = new PrismaClient();
-const dbNow = dayjs().add(9, 'hour').toDate();
 
 export async function PUT(req, { params }) {
   const { id } = params;
   const { title, content, token, userId, tags, isPrivate, viewers } = await req.json(); // 로그인 사용자와 익명 사용자 구분
+
+  const dbNow = dayjs().add(9, 'hour').toDate();
 
   if (!tags || tags.length === 0) {
     return new Response(JSON.stringify({ message: '태그를 추가해야합니다.' }), { status: 400 });
