@@ -16,7 +16,29 @@ export async function GET(req, { params }) {
       
         const post = await prisma.post.findUnique({
           where: { id: parseInt(id) },
-          include: { author: true, tags: true, viewers: true },
+          where: { id: parseInt(id) },
+          include: {
+            author: true,
+            tags: true,
+            viewers: true,
+            comments: {
+              where: { parentId: null },  // 최상위 댓글만 가져옴
+              include: {
+                author: true,
+                replies: {
+                  include: {
+                    author: true, // 답글 작성자 정보 포함
+                  },
+                  orderBy: {
+                    createdAt: 'asc',
+                  }
+                },
+              },
+              orderBy: {
+                createdAt: 'asc',
+              }
+            },
+          },
         });
     
         if (post) {
