@@ -1,11 +1,15 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs"
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 
 const prisma = new PrismaClient();
-const dbNow = dayjs().add(9, 'hour').toDate();
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export async function POST(req) {
+    const kstNow = dayjs().tz('Asia/Seoul').format();
     const { nickname, name, id, email, password, password2 } = await req.json();
     const koreanRegex = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
     const errors = {}
@@ -42,7 +46,7 @@ export async function POST(req) {
                 id,
                 email,
                 password: hashpassword,
-                createdAt: dbNow,
+                createdAt: kstNow,
             }
         });
         return new Response(JSON.stringify(user), { status: 201 });

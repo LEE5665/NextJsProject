@@ -25,6 +25,16 @@ if (password && comment.password !== password) {
 }
 
   try {
+    const replies = await prisma.comment.findMany({
+      where: { parentId: commentId },
+    });
+    
+    if (replies.length > 0) {
+      await prisma.comment.deleteMany({
+        where: { parentId: commentId },
+      });
+    }
+
     await prisma.comment.delete({
       where: { id: commentId },
     });

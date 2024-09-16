@@ -8,7 +8,7 @@ datasource db {
 }
 
 model User {
-  id        String      @id @default(uuid())
+  id        String      @id
   name  String
   nickname  String   @unique
   email     String   @unique
@@ -29,9 +29,9 @@ model Post {
   author     User?    @relation(fields: [authorId], references: [id])
   authorId   String?
   password   String?
-  tags       Tag[]    @relation("PostTags")
-  isPrivate   Boolean  @default(false)
-  viewers   User[]    @relation("PostViewers")
+  tags       Tag[]
+  isPrivate  Boolean  @default(false)
+  viewers    User[]    @relation("PostViewers")
   comments   Comment[]
 }
 
@@ -45,7 +45,7 @@ model Comment {
   post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId     Int
   replies    Comment[] @relation("CommentReplies")
-  parent     Comment? @relation("CommentReplies", fields: [parentId], references: [id])
+  parent     Comment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
   parentId   Int?
   password   String?
 }
@@ -53,5 +53,5 @@ model Comment {
 model Tag {
   id    Int     @id @default(autoincrement())
   name  String  @unique
-  posts Post[]  @relation("PostTags")
+  posts Post[] @relation
 }
