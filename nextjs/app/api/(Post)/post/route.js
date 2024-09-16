@@ -7,6 +7,8 @@ const prisma = new PrismaClient();
 export const dynamic = "force-dynamic";
 
 export async function GET(req) {
+    const threeDaysAgo = new Date();
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
     try {
         let conditions = { isPrivate: false };
         const session = await getServerSession(authOptions);
@@ -39,7 +41,16 @@ export async function GET(req) {
         // 조회수가 가장 높은 인기글 3개 가져오기
         const popularPosts = await prisma.post.findMany({
             take: 3, // 3개만 가져오기
-            where: conditions,
+            where: {
+                AND: [
+                    conditions,
+                    {
+                        createdAt: {
+                            gte: threeDaysAgo, // 3일 전 이후에 작성된 글
+                        },
+                    },
+                ],
+            },
             orderBy: {
                 views: 'desc', // 조회수 순 정렬
             },

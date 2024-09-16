@@ -292,7 +292,11 @@ export default function AllPosts({ searchParams }) {
                     <div className="content">
                       <h3>{post.title}</h3>
                       <p className="meta">
-                        <span className="author">{post.isPrivate && '[Private] '}{post.author?.nickname || '익명'}</span>
+                      <span className="author">{post.isPrivate && '[Private] '}{post.author?.nickname || '익명'} | {new Date(post.createdAt).toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })}</span>
                           <span className="views">VIEW {post.views || 0}</span>
                       </p>
                     <p className="preview">{postText.length > 100 ? `${postText.substring(0, 100)}...` : postText}</p>

@@ -1,7 +1,12 @@
 import { PrismaClient } from "@prisma/client";
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 
 const prisma = new PrismaClient();
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 const path = require("path");
 const fs = require("fs").promises;
 const { existsSync, mkdirSync } = require("fs");
@@ -12,9 +17,8 @@ if (!existsSync(UPLOAD_DIR)) {
 }
 
 export async function POST(req) {
+  const kstNow = dayjs().tz('Asia/Seoul').format();
   const { title, content, userId, password, tags, isPrivate, viewers } = await req.json();
-
-  const dbNow = dayjs().add(9, 'hour').toDate();
 
   //const updatedContent = await handleImages(content);
 
@@ -59,7 +63,7 @@ export async function POST(req) {
         title,
         content,
         author: { connect: { id: userId } },
-        createdAt: dbNow,
+        createdAt: kstNow,
         isPrivate,
         tags: {
           connectOrCreate: tagData,
@@ -86,7 +90,7 @@ export async function POST(req) {
         tags: {
           connectOrCreate: tagData,
         },
-        createdAt: dbNow,
+        createdAt: kstNow,
       },
     });
     return new Response(JSON.stringify({ message: '성공' }), { status: 201 });
