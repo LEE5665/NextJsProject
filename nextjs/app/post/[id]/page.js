@@ -13,6 +13,16 @@ export default function PostDetail({ params }) {
   const { id } = params;
   const [post, setPost] = useState(null);
   const { theme, setTheme } = useTheme();
+  const [isReplyFormVisible, setReplyFormVisible] = useState(null); // 열려 있는 댓글 ID 상태
+  const [newComment, setNewComment] = useState('');
+  const [newReply, setNewReply] = useState({});
+  const [anonymousPassword, setAnonymousPassword] = useState('');
+  const [newReplyPassword, setNewReplyPassword] = useState({});
+  const [editingCommentId, setEditingCommentId] = useState(null); // 수정 중인 댓글 ID 상태
+  const [editingContent, setEditingContent] = useState(''); // 수정 중인 댓글 내용
+  const [editingReplyId, setEditingReplyId] = useState(null);
+  const [editingReplyContent, setEditingReplyContent] = useState('');
+
 
   useEffect(() => {
     if (id) {
@@ -28,6 +38,211 @@ export default function PostDetail({ params }) {
       fetchPost();
     }
   }, [id]);
+
+    // 댓글 수정 시작 함수
+    const handleEditComment = (comment) => {
+      setEditingCommentId(comment.id); // 수정할 댓글의 ID 설정
+      setEditingContent(comment.content); // 수정할 댓글의 내용을 입력 필드에 채움
+    };
+    const handleEditReply = (reply) => {
+      setEditingReplyId(reply.id); // 수정할 답글의 ID 설정
+      setEditingReplyContent(reply.content); // 수정할 답글의 내용을 입력 필드에 채움
+    };
+    const handleCancelEditReply = () => {
+      setEditingReplyId(null); // 수정 취소
+    };
+    
+  
+    // 댓글 수정 제출 함수
+    const handleUpdateCommentOrReply = async (authorId, isReply = false, parentCommentId = null) => {
+      let password = null;
+      if (!session || (session && session.user.id !== authorId)) {
+        password = prompt(isReply ? '답글의 비밀번호를 입력하세요' : '댓글의 비밀번호를 입력하세요');
+        if (!password) {
+          alert('비밀번호가 필요합니다.');
+          return;
+        }
+      }
+      const content = isReply ? editingReplyContent : editingContent;
+      const editingId = isReply ? editingReplyId : editingCommentId;
+    
+      try {
+        const response = await axios.post(`/api/comments/update`, {
+          commentId: editingId,
+          content,
+          password,
+        });
+        
+        if (response.status === 200) {
+          setPost((prevPost) => ({
+            ...prevPost,
+            comments: prevPost.comments.map((comment) => {
+              if (isReply) {
+                // 답글 수정
+                return comment.id === parentCommentId
+                  ? {
+                      ...comment,
+                      replies: comment.replies.map((reply) =>
+                        reply.id === editingId ? { ...reply, content } : reply
+                      ),
+                    }
+                  : comment;
+              } else {
+                // 댓글 수정
+                return comment.id === editingId ? { ...comment, content } : comment;
+              }
+            }),
+          }));
+    
+          // 수정 모드 종료
+          if (isReply) {
+            setEditingReplyId(null);
+            setEditingReplyContent('');
+          } else {
+            setEditingCommentId(null);
+            setEditingContent('');
+          }
+        } else {
+          alert('수정에 실패했습니다.');
+        }
+      } catch (error) {
+        console.error('수정 중 오류 발생:', error);
+        alert('수정에 실패했습니다.');
+      }
+    };
+
+    const handleCancelEdit = () => {
+      setEditingCommentId(null); // 수정 취소
+    };
+
+  const toggleReplyForm = (commentId) => {
+    setReplyFormVisible(isReplyFormVisible === commentId ? null : commentId); // 폼을 열거나 닫음
+  };
+
+  // 댓글 삭제 함수
+  const handleDeleteComment = async (comment, isReply = false, parentCommentId = null) => {
+    let password = null;
+    // 익명 작성자인 경우 비밀번호 입력
+    if (!comment.author) {
+      password = prompt('비밀번호를 입력하세요');
+      if (!password) {
+        return;
+      }
+    }
+    const confirmed = confirm('정말로 댓글을 삭제하시겠습니까?');
+    if (!confirmed) {
+      return;
+    }
+    try {
+      const response = await axios.post(`/api/comments/delete`, {
+        password,
+        authorId: comment.authorId,
+        commentId: comment.id
+      });
+      if (response.status === 200) {
+        alert('댓글이 삭제되었습니다.');
+        if (isReply && parentCommentId) {
+          // 답글 삭제 시 상위 댓글의 replies 배열에서 해당 답글 제거
+          setPost((prevPost) => ({
+            ...prevPost,
+            comments: prevPost.comments.map((parentComment) =>
+              parentComment.id === parentCommentId
+                ? {
+                    ...parentComment,
+                    replies: parentComment.replies.filter(
+                      (reply) => reply.id !== comment.id
+                    ),
+                  }
+                : parentComment
+            ),
+          }));
+        } else {
+          // 일반 댓글 삭제 시 댓글 목록에서 해당 댓글 제거
+          setPost((prevPost) => ({
+            ...prevPost,
+            comments: prevPost.comments.filter((c) => c.id !== comment.id),
+          }));
+        }
+      } else {
+        alert('댓글 삭제에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('댓글 삭제 중 오류 발생:', error);
+      alert('댓글 삭제에 실패했습니다.');
+    }
+  };
+
+  // 댓글 제출 함수
+  const submitComment = async () => {
+    if (newComment.trim()) {
+      console.log('새 댓글:', newComment);
+      setNewComment(''); // 댓글 작성 후 초기화
+      try {
+        const response = await axios.post(`/api/comments/create`, {
+          content: newComment,
+          authorId: session?.user.id,
+          password: anonymousPassword,
+          postId: id,
+        })
+        if(response.status === 201){
+          const createdComment = response.data;
+          console.log(createdComment.newComment);
+          setPost((prevPost) => ({
+            ...prevPost,
+            comments: [...(prevPost.comments || []), createdComment.newComment], // 새로운 댓글을 댓글 목록에 추가
+          }));
+          console.log(post);
+        } else {
+          console.log('댓글 등록 실패:', response.data);
+        }
+      } catch (error) {
+        if(error.response.data.error){
+          alert(error.response.data.error);
+        }
+        console.log('댓글을 등록하는 중 오류 발생:', error);
+      }
+    }
+  };
+
+  // 답글 제출 함수
+  const submitReply = async (commentId) => {
+    if (newReply[commentId]?.trim()) {
+      console.log('새 답글:', newReply[commentId]);
+      try {
+        const response = await axios.post(`/api/comments/create`, {
+          content: newReply[commentId],
+          authorId: session?.user.id,
+          password: newReplyPassword[commentId],
+          postId: id,
+          parentId: commentId,
+        });
+  
+        if (response.status === 201) {
+          const createdReply = response.data.newComment;
+          setPost((prevPost) => ({
+            ...prevPost,
+            comments: prevPost.comments.map((comment) =>
+              comment.id === commentId
+                ? {
+                    ...comment,
+                    replies: [...(comment.replies || []), createdReply], // replies가 없을 경우 빈 배열로 초기화
+                  }
+                : comment
+            ),
+          }));
+        } else {
+          console.log('답글 등록 실패:', response.data);
+        }
+      } catch (error) {
+        if (error.response?.data?.error) {
+          alert(error.response.data.error);
+        }
+        console.log('답글을 등록하는 중 오류 발생:', error);
+      }
+  
+      setNewReply((prev) => ({ ...prev, [commentId]: '' })); // 답글 작성 후 초기화
+    }
+  };
 
   const handleDelete = async () => {
     let password = null;
@@ -91,9 +306,7 @@ export default function PostDetail({ params }) {
   const isAuthor = session && post.author && session.user.id === post.author.id;
 
   return (
-    <div
-    className={`min-h-screen p-6 ${theme === 'dark' ? 'bg-[var(--background-color)] text-[var(--text-primary)]' : 'bg-[var(--background-color)] text-[var(--text-primary)]'}`}
-  >
+    <div className={`min-h-screen p-6 ${theme === 'dark' ? 'bg-[var(--background-color)] text-[var(--text-primary)]' : 'bg-[var(--background-color)] text-[var(--text-primary)]'}`}>
       {/* Header */}
       <header className="flex justify-between items-center mb-4">
         <div className="text-2xl font-bold">개발 게시판</div>
@@ -117,14 +330,7 @@ export default function PostDetail({ params }) {
       {/* Post Detail */}
       <section>
         <h2 className="text-2xl font-bold mb-4">{post.title}</h2>
-        <div
-  className={`post-detail p-4 rounded-lg shadow-lg ${
-    theme === 'dark'
-      ? 'bg-[var(--card-bg-dark)] border border-[var(--card-border-dark)]'
-      : 'bg-[var(--card-bg)] shadow-md'
-  }`}
->
-          {/* Render Quill Content */}
+        <div className={`post-detail p-4 rounded-lg shadow-lg ${theme === 'dark' ? 'bg-[var(--card-bg-dark)] border border-[var(--card-border-dark)]' : 'bg-[var(--card-bg)] shadow-md'}`}>
           <div className="ql-editor" dangerouslySetInnerHTML={{ __html: post.content }} />
           <p className={`mt-4 text-sm ${theme === 'dark' ? 'text-[var(--text-secondary)]' : 'text-[var(--text-primary)]'}`}>
             작성자: {post.author?.nickname || '익명'}
@@ -132,6 +338,211 @@ export default function PostDetail({ params }) {
           <p className="mt-2 text-sm text-[var(--views-color)]">조회수: {post.views}</p>
         </div>
       </section>
+
+    {/* 댓글 섹션 */}
+    <section className="comments-section mt-6">
+      <h3 className="text-xl font-bold mb-4">댓글</h3>
+
+      {/* 댓글 리스트 */}
+      <div className="comments-list space-y-4">
+        {post.comments?.map((comment) => (
+          <div
+            key={comment.id}
+            className={`comment p-4 rounded-lg ${theme === 'dark' ? 'bg-[var(--card-bg)] text-[var(--text-primary)] border-[var(--card-border)]' : 'bg-[var(--card-bg)] border'}`}
+          >
+            {editingCommentId === comment.id ? (
+              <textarea
+                value={editingContent}
+                onChange={(e) => setEditingContent(e.target.value)}
+                className={`w-full p-2 rounded-lg ${theme === 'dark' ? 'bg-[var(--card-bg-dark)] text-[var(--text-primary)]' : 'bg-white text-black'} border`}
+                placeholder="댓글을 수정하세요"
+              ></textarea>
+            ) : (
+              <p className="comment-content text-lg">{comment.content}</p>
+            )}
+
+            <div className="comment-meta mt-2 text-sm text-[var(--author-color)]">
+              작성자: <span className="font-semibold">{comment.author?.nickname || '익명'}</span> • <span>{comment.createdAt}</span>
+            </div>
+
+            {/* 댓글 수정 및 삭제 버튼 */}
+            <div className="flex items-center justify-between mt-2">
+              <div className="reply-button text-sm text-blue-500 cursor-pointer hover:underline" onClick={() => toggleReplyForm(comment.id)}>
+                답글 달기
+              </div>
+
+              {(comment.authorId === null || comment.authorId === session?.user?.id) && (
+  <div className="flex space-x-4">
+    {editingCommentId === comment.id ? (
+      <>
+        <button
+          className="bg-[var(--button-bg)] text-[var(--button-text)] hover:bg-[var(--button-hover-bg)] text-sm px-2 py-1 rounded transition-all"
+          onClick={() => handleUpdateCommentOrReply(comment.authorId)}
+        >
+          저장
+        </button>
+        <button
+          className="bg-[var(--button-bg)] text-[var(--button-text)] hover:bg-[var(--button-hover-bg)] text-sm px-2 py-1 rounded transition-all"
+          onClick={handleCancelEdit}
+        >
+          취소
+        </button>
+      </>
+    ) : (
+      <button
+        className="bg-[var(--button-bg)] text-[var(--button-text)] hover:bg-[var(--button-hover-bg)] text-sm px-2 py-1 rounded transition-all"
+        onClick={() => handleEditComment(comment)}
+      >
+        수정
+      </button>
+    )}
+
+    <button
+      className="bg-[var(--button-bg)] text-[var(--button-text)] hover:bg-[var(--button-hover-bg)] text-sm px-2 py-1 rounded transition-all"
+      onClick={() => handleDeleteComment(comment)}
+    >
+      삭제
+    </button>
+  </div>
+)}
+            </div>
+
+            {/* 답글 폼 */}
+            {isReplyFormVisible === comment.id && (
+              <div className="reply-form mt-2">
+                <textarea
+                  value={newReply[comment.id] || ''}
+                  onChange={(e) =>
+                    setNewReply((prev) => ({
+                      ...prev,
+                      [comment.id]: e.target.value,
+                    }))
+                  }
+                  className={`w-full p-2 rounded-lg ${theme === 'dark' ? 'bg-[var(--card-bg-dark)] text-[var(--text-primary)]' : 'bg-white text-black'} border`}
+                  placeholder="답글을 입력하세요"
+                ></textarea>
+
+                {/* 익명 사용자의 경우 비밀번호 입력란 추가 */}
+                {!session && (
+                  <input
+                    type="password"
+                    value={newReplyPassword[comment.id] || ''}
+                    onChange={(e) =>
+                      setNewReplyPassword((prev) => ({
+                        ...prev,
+                        [comment.id]: e.target.value,
+                      }))
+                    }
+                    className={`mt-2 w-full p-2 rounded-lg ${theme === 'dark' ? 'bg-[var(--card-bg-dark)] text-[var(--text-primary)]' : 'bg-white text-black'} border`}
+                    placeholder="비밀번호를 입력하세요"
+                  />
+                )}
+
+                <button
+                  className="mt-2 px-4 py-2 bg-[var(--button-bg)] text-white rounded-lg hover:bg-[var(--button-hover-bg)] transition"
+                  onClick={() => submitReply(comment.id)}
+                >
+                  답글 작성
+                </button>
+              </div>
+            )}
+
+            {/* 답글 리스트 */}
+            {comment.replies?.length > 0 && (
+  <div className="replies-list mt-4 space-y-4 ml-4">
+    {comment.replies.map((reply) => (
+      <div
+        key={reply.id}
+        className={`reply p-4 rounded-lg ${theme === 'dark' ? 'bg-[var(--card-bg)] text-[var(--text-primary)] border-[var(--card-border)]' : 'bg-[var(--card-bg)] border'}`}
+      >
+        {editingReplyId === reply.id ? (
+          <textarea
+            value={editingReplyContent}
+            onChange={(e) => setEditingReplyContent(e.target.value)}
+            className={`w-full p-2 rounded-lg ${theme === 'dark' ? 'bg-[var(--card-bg-dark)] text-[var(--text-primary)]' : 'bg-white text-black'} border`}
+            placeholder="답글을 수정하세요"
+          ></textarea>
+        ) : (
+          <p className="reply-content text-base">{reply.content}</p>
+        )}
+
+        <div className="reply-meta mt-2 text-sm text-[var(--author-color)]">
+          작성자: <span className="font-semibold">{reply.author?.nickname || '익명'}</span> • <span>{reply.createdAt}</span>
+        </div>
+
+        {/* 답글 수정 및 삭제 버튼 */}
+        {(reply.authorId === null || reply.authorId === session?.user?.id) && (
+  <div className="flex space-x-4">
+    {editingReplyId === reply.id ? (
+      <>
+        <button
+          className="bg-[var(--button-bg)] text-[var(--button-text)] hover:bg-[var(--button-hover-bg)] text-sm px-2 py-1 rounded transition-all"
+          onClick={() => handleUpdateCommentOrReply(reply.authorId, true, comment.id)}
+        >
+          저장
+        </button>
+        <button
+          className="bg-[var(--button-bg)] text-[var(--button-text)] hover:bg-[var(--button-hover-bg)] text-sm px-2 py-1 rounded transition-all"
+          onClick={handleCancelEditReply}
+        >
+          취소
+        </button>
+      </>
+    ) : (
+      <button
+        className="bg-[var(--button-bg)] text-[var(--button-text)] hover:bg-[var(--button-hover-bg)] text-sm px-2 py-1 rounded transition-all"
+        onClick={() => handleEditReply(reply)}
+      >
+        수정
+      </button>
+    )}
+    
+    <button
+      className="bg-[var(--button-bg)] text-[var(--button-text)] hover:bg-[var(--button-hover-bg)] text-sm px-2 py-1 rounded transition-all"
+      onClick={() => handleDeleteComment(reply, true, comment.id)}
+    >
+      삭제
+    </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* 새로운 댓글 작성 폼 */}
+      <div className="new-comment mt-6">
+        <h4 className="text-lg font-semibold mb-2">댓글 작성</h4>
+        <textarea
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+          className={`w-full p-4 rounded-lg ${theme === 'dark' ? 'bg-[var(--card-bg-dark)] text-[var(--text-primary)]' : 'bg-white text-black'} border`}
+          placeholder="댓글을 입력하세요"
+        ></textarea>
+
+        {/* 익명 댓글일 때 비밀번호 입력 */}
+        {!session && (
+          <input
+            type="password"
+            value={anonymousPassword}
+            onChange={(e) => setAnonymousPassword(e.target.value)}
+            className={`mt-2 w-full p-2 rounded-lg ${theme === 'dark' ? 'bg-[var(--card-bg-dark)] text-[var(--text-primary)]' : 'bg-white text-black'} border`}
+            placeholder="비밀번호를 입력하세요"
+          />
+        )}
+
+        <button
+          className="mt-4 px-4 py-2 bg-[var(--button-bg)] text-white rounded-lg hover:bg-[var(--button-hover-bg)] transition"
+          onClick={submitComment}
+        >
+          댓글 작성
+        </button>
+      </div>
+    </section>
+
 
       {/* Footer Buttons */}
       <footer className="mt-6">
