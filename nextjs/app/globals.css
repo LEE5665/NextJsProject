@@ -353,6 +353,9 @@ section h2::before {
   transition: transform var(--transition-speed), box-shadow var(--transition-speed);
   height: 100%;
   box-shadow: var(--box-shadow);
+  max-width: 600px;
+  flex: 1 1 280px;
+  max-width: 600px;
 }
 
 .article:hover {
