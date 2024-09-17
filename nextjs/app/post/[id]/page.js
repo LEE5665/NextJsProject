@@ -322,7 +322,7 @@ export default function PostDetail({ params }) {
           {theme === 'dark' ? '라이트 모드' : '다크 모드'}
         </button>
       </header>
-
+  
       {/* Navigation */}
       <nav className="mb-6">
         <div className="flex space-x-4 text-lg">
@@ -334,263 +334,200 @@ export default function PostDetail({ params }) {
           </Link>
         </div>
       </nav>
-
+  
       {/* Post Detail */}
       <section>
-  <h2 className="text-2xl font-bold mb-2">{post.title}</h2>
-
-  {/* 작성 시간 및 수정된 시간 (타이틀 아래에 추가) */}
-  <div className="text-sm text-[var(--views-color)] mb-4">
-    {/* 작성 시간 */}
-    <p>
-      작성 시간: {new Date(post.createdAt).toLocaleString('ko-KR', timeData)}
-    </p>
-
-    {/* 수정된 시간 (수정된 경우에만 표시) */}
-    {post.updatedAt && (
-      <p>
-        수정됨: {new Date(post.updatedAt).toLocaleString('ko-KR', timeData)}
-      </p>
-    )}
-  </div>
-
-  <div className={`post-detail p-4 rounded-lg shadow-lg ${theme === 'dark' ? 'bg-[var(--card-bg-dark)] border border-[var(--card-border-dark)]' : 'bg-[var(--card-bg)] shadow-md'}`}>
-    <div className="ql-editor" dangerouslySetInnerHTML={{ __html: post.content }} />
-
-    {/* 작성자 정보 */}
-    <p className={`mt-4 text-sm ${theme === 'dark' ? 'text-[var(--text-secondary)]' : 'text-[var(--text-primary)]'}`}>
-      작성자: {post.author?.nickname || '익명'}
-    </p>
-
-    {/* 조회수 */}
-    <p className="mt-2 text-sm text-[var(--views-color)]">조회수: {post.views}</p>
-  </div>
-</section>
-
-    {/* 댓글 섹션 */}
-    <section className="comments-section mt-6">
-      <h3 className="text-xl font-bold mb-4">댓글</h3>
-
-      {/* 댓글 리스트 */}
-      <div className="comments-list space-y-4">
-        {post.comments?.map((comment) => (
-          <div
-            key={comment.id}
-            className={`comment p-4 rounded-lg ${theme === 'dark' ? 'bg-[var(--card-bg)] text-[var(--text-primary)] border-[var(--card-border)]' : 'bg-[var(--card-bg)] border'}`}
-          >
-            {/* 작성자와 작성 시간 정보 */}
-            <div className="comment-meta mb-2 text-sm text-[var(--author-color)]">
-              <span className="font-semibold">{comment.author?.nickname || '익명'}</span> {/* 작성자 정보 */}
-              <span className="ml-2"> • {new Date(comment.createdAt).toLocaleString('ko-KR', timeData)}</span> {/* 작성 날짜 */}
-            </div>
-
-            {/* 댓글 내용 */}
-            {editingCommentId === comment.id ? (
-              <textarea
-                value={editingContent}
-                onChange={(e) => setEditingContent(e.target.value)}
-                className={`w-full p-2 rounded-lg ${theme === 'dark' ? 'bg-[var(--card-bg-dark)] text-[var(--text-primary)]' : 'bg-white text-black'} border`}
-                placeholder="댓글을 수정하세요"
-              ></textarea>
-            ) : (
-              <p className="comment-content text-lg">{comment.content}</p>
-            )}
-
-            {/* 수정된 경우 수정 날짜 표시 */}
-            {comment.updatedAt && (
-              <p className="text-sm text-gray-500 mt-2">
-                (수정됨: {new Date(comment.updatedAt).toLocaleString('ko-KR', timeData)})
-              </p>
-            )}
-
-            {/* 댓글 수정 및 삭제 버튼 */}
-            <div className="flex items-center justify-between mt-2">
-              <div className="reply-button text-sm text-blue-500 cursor-pointer hover:underline" onClick={() => toggleReplyForm(comment.id)}>
-                답글 달기
+        <h2 className="text-2xl font-bold mb-2">{post.title}</h2>
+  
+        <div className="text-sm text-[var(--views-color)] mb-4">
+          <p>작성 시간: {new Date(post.createdAt).toLocaleString('ko-KR', timeData)}</p>
+          {post.updatedAt && (
+            <p>수정됨: {new Date(post.updatedAt).toLocaleString('ko-KR', timeData)}</p>
+          )}
+        </div>
+  
+        <div className={`post-detail p-4 rounded-lg shadow-lg ${theme === 'dark' ? 'bg-[var(--card-bg-dark)] border border-[var(--card-border-dark)]' : 'bg-[var(--card-bg)] shadow-md'}`}>
+          <div className="ql-editor" dangerouslySetInnerHTML={{ __html: post.content }} />
+          <p className={`mt-4 text-sm ${theme === 'dark' ? 'text-[var(--text-secondary)]' : 'text-[var(--text-primary)]'}`}>
+            작성자: {post.author?.nickname || '익명'}
+          </p>
+          <p className="mt-2 text-sm text-[var(--views-color)]">조회수: {post.views}</p>
+        </div>
+      </section>
+  
+      {/* 댓글 섹션 */}
+      <section className="comments-section mt-6">
+        <h3 className="text-xl font-bold mb-4">댓글</h3>
+  
+        {/* 댓글 리스트 */}
+        <div className="comments-list space-y-4">
+          {post.comments?.map((comment) => (
+            <div
+              key={comment.id}
+              className={`comment p-4 rounded-lg ${theme === 'dark' ? 'bg-[var(--card-bg)] text-[var(--text-primary)] border-[var(--card-border)]' : 'bg-[var(--card-bg)] border'}`}
+            >
+              <div className="comment-meta mb-2 text-sm text-[var(--author-color)]">
+                <span className="font-semibold">{comment.author?.nickname || '익명'}</span>
+                <span className="ml-2"> • {new Date(comment.createdAt).toLocaleString('ko-KR', timeData)}</span>
               </div>
-
-              {(comment.authorId === null || comment.authorId === session?.user?.id) && (
-                <div className="flex space-x-4">
-                  {editingCommentId === comment.id ? (
-                    <>
-                      <button
-                        className="bg-[var(--button-bg)] text-[var(--button-text)] hover:bg-[var(--button-hover-bg)] text-sm px-2 py-1 rounded transition-all"
-                        onClick={() => handleUpdateCommentOrReply(comment.authorId)}
-                      >
-                        저장
-                      </button>
-                      <button
-                        className="bg-[var(--button-bg)] text-[var(--button-text)] hover:bg-[var(--button-hover-bg)] text-sm px-2 py-1 rounded transition-all"
-                        onClick={handleCancelEdit}
-                      >
-                        취소
-                      </button>
-                    </>
-                  ) : (
-                    <button
-                      className="bg-[var(--button-bg)] text-[var(--button-text)] hover:bg-[var(--button-hover-bg)] text-sm px-2 py-1 rounded transition-all"
-                      onClick={() => handleEditComment(comment)}
-                    >
-                      수정
-                    </button>
-                  )}
-
-                  <button
-                    className="bg-[var(--button-bg)] text-[var(--button-text)] hover:bg-[var(--button-hover-bg)] text-sm px-2 py-1 rounded transition-all"
-                    onClick={() => handleDeleteComment(comment)}
-                  >
-                    삭제
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* 답글 폼 */}
-            {isReplyFormVisible === comment.id && (
-              <div className="reply-form mt-2">
+  
+              {/* 댓글 내용 */}
+              {editingCommentId === comment.id ? (
                 <textarea
-                  value={newReply[comment.id] || ''}
-                  onChange={(e) =>
-                    setNewReply((prev) => ({
-                      ...prev,
-                      [comment.id]: e.target.value,
-                    }))
-                  }
+                  value={editingContent}
+                  onChange={(e) => setEditingContent(e.target.value)}
                   className={`w-full p-2 rounded-lg ${theme === 'dark' ? 'bg-[var(--card-bg-dark)] text-[var(--text-primary)]' : 'bg-white text-black'} border`}
-                  placeholder="답글을 입력하세요"
+                  placeholder="댓글을 수정하세요"
                 ></textarea>
-
-                {/* 익명 사용자의 경우 비밀번호 입력란 추가 */}
-                {!session && (
-                  <input
-                    type="password"
-                    value={newReplyPassword[comment.id] || ''}
+              ) : (
+                <p className="comment-content text-lg">{comment.content}</p>
+              )}
+  
+              {/* 수정된 경우 수정 날짜 표시 */}
+              {comment.updatedAt && (
+                <p className="text-sm text-gray-500 mt-2">
+                  (수정됨: {new Date(comment.updatedAt).toLocaleString('ko-KR', timeData)})
+                </p>
+              )}
+  
+              {/* 댓글 수정 및 삭제 버튼 */}
+              <div className="flex justify-between items-center mt-2">
+                <div className="text-sm text-blue-500 cursor-pointer hover:underline" onClick={() => toggleReplyForm(comment.id)}>
+                  답글 달기
+                </div>
+  
+                {(comment.authorId === null || comment.authorId === session?.user?.id) && (
+                  <div className="flex space-x-4 text-sm text-blue-500 cursor-pointer">
+                    {editingCommentId === comment.id ? (
+                      <>
+                        <span className="hover:underline" onClick={() => handleUpdateCommentOrReply(comment.authorId)}>저장</span>
+                        <span className="hover:underline" onClick={handleCancelEdit}>취소</span>
+                      </>
+                    ) : (
+                      <span className="hover:underline" onClick={() => handleEditComment(comment)}>수정</span>
+                    )}
+                    <span className="hover:underline" onClick={() => handleDeleteComment(comment)}>삭제</span>
+                  </div>
+                )}
+              </div>
+  
+              {/* 답글 폼 */}
+              {isReplyFormVisible === comment.id && (
+                <div className="reply-form mt-2">
+                  <textarea
+                    value={newReply[comment.id] || ''}
                     onChange={(e) =>
-                      setNewReplyPassword((prev) => ({
+                      setNewReply((prev) => ({
                         ...prev,
                         [comment.id]: e.target.value,
                       }))
                     }
-                    className={`mt-2 w-full p-2 rounded-lg ${theme === 'dark' ? 'bg-[var(--card-bg-dark)] text-[var(--text-primary)]' : 'bg-white text-black'} border`}
-                    placeholder="비밀번호를 입력하세요"
-                  />
-                )}
-
-                <button
-                  className="mt-2 px-4 py-2 bg-[var(--button-bg)] text-white rounded-lg hover:bg-[var(--button-hover-bg)] transition"
-                  onClick={() => submitReply(comment.id)}
-                >
-                  답글 작성
-                </button>
-              </div>
-            )}
-
-            {/* 답글 리스트 */}
-            {comment.replies?.length > 0 && (
-              <div className="replies-list mt-4 space-y-4 ml-4">
-                {comment.replies.map((reply) => (
-                  <div
-                    key={reply.id}
-                    className={`reply p-4 rounded-lg ${theme === 'dark' ? 'bg-[var(--card-bg)] text-[var(--text-primary)] border-[var(--card-border)]' : 'bg-[var(--card-bg)] border'}`}
+                    className={`w-full p-2 rounded-lg ${theme === 'dark' ? 'bg-[var(--card-bg-dark)] text-[var(--text-primary)]' : 'bg-white text-black'} border`}
+                    placeholder="답글을 입력하세요"
+                  ></textarea>
+  
+                  {!session && (
+                    <input
+                      type="password"
+                      value={newReplyPassword[comment.id] || ''}
+                      onChange={(e) =>
+                        setNewReplyPassword((prev) => ({
+                          ...prev,
+                          [comment.id]: e.target.value,
+                        }))
+                      }
+                      className={`mt-2 w-full p-2 rounded-lg ${theme === 'dark' ? 'bg-[var(--card-bg-dark)] text-[var(--text-primary)]' : 'bg-white text-black'} border`}
+                      placeholder="비밀번호를 입력하세요"
+                    />
+                  )}
+  
+                  <button
+                    className="mt-2 px-4 py-2 bg-[var(--button-bg)] text-white rounded-lg hover:bg-[var(--button-hover-bg)] transition"
+                    onClick={() => submitReply(comment.id)}
                   >
-                    {/* 답글 작성자 및 시간 */}
-                    <div className="reply-meta mb-2 text-sm text-[var(--author-color)]">
-                      <span className="font-semibold">{reply.author?.nickname || '익명'}</span>
-                      <span className="ml-2"> • {new Date(reply.createdAt).toLocaleString('ko-KR', timeData)}</span>
-                    </div>
-
-                    {editingReplyId === reply.id ? (
-                      <textarea
-                        value={editingReplyContent}
-                        onChange={(e) => setEditingReplyContent(e.target.value)}
-                        className={`w-full p-2 rounded-lg ${theme === 'dark' ? 'bg-[var(--card-bg-dark)] text-[var(--text-primary)]' : 'bg-white text-black'} border`}
-                        placeholder="답글을 수정하세요"
-                      ></textarea>
-                    ) : (
-                      <p className="reply-content text-base">{reply.content}</p>
-                    )}
-
-                    {/* 답글 수정된 경우 수정 날짜 표시 */}
-                    {reply.updatedAt && (
-                      <p className="text-sm text-gray-500 mt-2">
-                        (수정됨: {new Date(reply.updatedAt).toLocaleString('ko-KR', timeData)})
-                      </p>
-                    )}
-
-                    {/* 답글 수정 및 삭제 버튼 */}
-                    {(reply.authorId === null || reply.authorId === session?.user?.id) && (
-                      <div className="flex space-x-4">
+                    답글 작성
+                  </button>
+                </div>
+              )}
+  
+              {/* 답글 리스트 */}
+              {comment.replies?.length > 0 && (
+                <div className="replies-list mt-4 space-y-4 ml-4">
+                  {comment.replies.map((reply) => (
+                    <div
+                      key={reply.id}
+                      className={`reply p-4 rounded-lg ${theme === 'dark' ? 'bg-[var(--card-bg)] text-[var(--text-primary)] border-[var(--card-border)]' : 'bg-[var(--card-bg)] border'}`}
+                    >
+                      <div className="reply-meta mb-2 text-sm text-[var(--author-color)]">
+                        <span className="font-semibold">{reply.author?.nickname || '익명'}</span>
+                        <span className="ml-2"> • {new Date(reply.createdAt).toLocaleString('ko-KR', timeData)}</span>
+                      </div>
+  
+                      {editingReplyId === reply.id ? (
+                        <textarea
+                          value={editingReplyContent}
+                          onChange={(e) => setEditingReplyContent(e.target.value)}
+                          className={`w-full p-2 rounded-lg ${theme === 'dark' ? 'bg-[var(--card-bg-dark)] text-[var(--text-primary)]' : 'bg-white text-black'} border`}
+                          placeholder="답글을 수정하세요"
+                        ></textarea>
+                      ) : (
+                        <p className="reply-content text-base">{reply.content}</p>
+                      )}
+  
+                      {reply.updatedAt && (
+                        <p className="text-sm text-gray-500 mt-2">
+                          (수정됨: {new Date(reply.updatedAt).toLocaleString('ko-KR', timeData)})
+                        </p>
+                      )}
+  
+                      <div className="flex space-x-4 text-sm text-blue-500 cursor-pointer mt-2">
                         {editingReplyId === reply.id ? (
                           <>
-                            <button
-                              className="bg-[var(--button-bg)] text-[var(--button-text)] hover:bg-[var(--button-hover-bg)] text-sm px-2 py-1 rounded transition-all"
-                              onClick={() => handleUpdateCommentOrReply(reply.authorId, true, comment.id)}
-                            >
-                              저장
-                            </button>
-                            <button
-                              className="bg-[var(--button-bg)] text-[var(--button-text)] hover:bg-[var(--button-hover-bg)] text-sm px-2 py-1 rounded transition-all"
-                              onClick={handleCancelEditReply}
-                            >
-                              취소
-                            </button>
+                            <span className="hover:underline" onClick={() => handleUpdateCommentOrReply(reply.authorId, true, comment.id)}>저장</span>
+                            <span className="hover:underline" onClick={handleCancelEditReply}>취소</span>
                           </>
                         ) : (
-                          <button
-                            className="bg-[var(--button-bg)] text-[var(--button-text)] hover:bg-[var(--button-hover-bg)] text-sm px-2 py-1 rounded transition-all"
-                            onClick={() => handleEditReply(reply)}
-                          >
-                            수정
-                          </button>
+                          <span className="hover:underline" onClick={() => handleEditReply(reply)}>수정</span>
                         )}
-
-                        <button
-                          className="bg-[var(--button-bg)] text-[var(--button-text)] hover:bg-[var(--button-hover-bg)] text-sm px-2 py-1 rounded transition-all"
-                          onClick={() => handleDeleteComment(reply, true, comment.id)}
-                        >
-                          삭제
-                        </button>
+                        <span className="hover:underline" onClick={() => handleDeleteComment(reply, true, comment.id)}>삭제</span>
                       </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* 새로운 댓글 작성 폼 */}
-      <div className="new-comment mt-6">
-        <h4 className="text-lg font-semibold mb-2">댓글 작성</h4>
-        <textarea
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          className={`w-full p-4 rounded-lg ${theme === 'dark' ? 'bg-[var(--card-bg-dark)] text-[var(--text-primary)]' : 'bg-white text-black'} border`}
-          placeholder="댓글을 입력하세요"
-        ></textarea>
-
-        {/* 익명 댓글일 때 비밀번호 입력 */}
-        {!session && (
-          <input
-            type="password"
-            value={anonymousPassword}
-            onChange={(e) => setAnonymousPassword(e.target.value)}
-            className={`mt-2 w-full p-2 rounded-lg ${theme === 'dark' ? 'bg-[var(--card-bg-dark)] text-[var(--text-primary)]' : 'bg-white text-black'} border`}
-            placeholder="비밀번호를 입력하세요"
-          />
-        )}
-
-        <button
-          className="mt-4 px-4 py-2 bg-[var(--button-bg)] text-white rounded-lg hover:bg-[var(--button-hover-bg)] transition"
-          onClick={submitComment}
-        >
-          댓글 작성
-        </button>
-      </div>
-    </section>
-
-
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+  
+        {/* 새로운 댓글 작성 폼 */}
+        <div className="new-comment mt-6">
+          <h4 className="text-lg font-semibold mb-2">댓글 작성</h4>
+          <textarea
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            className={`w-full p-4 rounded-lg ${theme === 'dark' ? 'bg-[var(--card-bg-dark)] text-[var(--text-primary)]' : 'bg-white text-black'} border`}
+            placeholder="댓글을 입력하세요"
+          ></textarea>
+  
+          {!session && (
+            <input
+              type="password"
+              value={anonymousPassword}
+              onChange={(e) => setAnonymousPassword(e.target.value)}
+              className={`mt-2 w-full p-2 rounded-lg ${theme === 'dark' ? 'bg-[var(--card-bg-dark)] text-[var(--text-primary)]' : 'bg-white text-black'} border`}
+              placeholder="비밀번호를 입력하세요"
+            />
+          )}
+  
+          <button
+            className="mt-4 px-4 py-2 bg-[var(--button-bg)] text-white rounded-lg hover:bg-[var(--button-hover-bg)] transition"
+            onClick={submitComment}
+          >
+            댓글 작성
+          </button>
+        </div>
+      </section>
+  
       {/* Footer Buttons */}
       <footer className="mt-6">
         {(isAuthor || !post.author) && (
