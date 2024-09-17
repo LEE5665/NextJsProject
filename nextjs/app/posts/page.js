@@ -279,8 +279,8 @@ export default function AllPosts({ searchParams }) {
               const firstImage = getFirstImageFromContent(post.content);
               const postText = getTextFromContent(post.content);
               return (
-                <Link href={`/post/${post.id}`} className="no-underline">
-                <article key={post.id} className="article">
+                <Link href={`/post/${post.id}`} key={post.id} className="no-underline">
+                <article className="article">
                     {firstImage && (
                       <div
                         className="image"
