@@ -33,7 +33,7 @@ export const POST = async (req) => {
     return NextResponse.json({
       success: true,
       name: fileName,
-      url: `/uploads/${fileName}`, // 업로드된 파일 URL
+      url: `/api/public/uploads/${fileName}`, // 업로드된 파일 URL
     });
   } catch (error) {
     console.error("파일 업로드 중 오류 발생:", error);
