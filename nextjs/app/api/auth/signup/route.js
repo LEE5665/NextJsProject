@@ -33,6 +33,10 @@ export async function POST(req) {
     if (existingId) {
         errors.id = '이미 사용 중인 아이디입니다.';
     }
+    const existingemail = await prisma.user.findUnique({ where: { id } });
+    if (existingemail) {
+        errors.email = '이미 사용 중인 이메일입니다.'
+    }
     if (Object.keys(errors).length > 0) {
         return new Response(JSON.stringify({ error: '유효성 검사 실패', errors }), { status: 400 });
     }
