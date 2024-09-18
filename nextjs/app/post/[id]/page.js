@@ -353,6 +353,19 @@ export default function PostDetail({ params }) {
           </p>
           <p className="mt-2 text-sm text-[var(--views-color)]">조회수: {post.views}</p>
         </div>
+        {/* 공개된 사용자 정보 표시 */}
+      {post.isPrivate && post.viewers?.length > 0 && (
+        <div className={`mt-4 p-4 rounded-lg shadow-lg ${theme === 'dark' ? 'bg-[var(--card-bg-dark)] border border-[var(--card-border-dark)]' : 'bg-[var(--card-bg)] border-[var(--card-border)]'}`}>
+          <h4 className="text-lg font-semibold mb-2">공개된 사용자:</h4>
+          <ul className="list-disc ml-6 space-y-1">
+            {post.viewers.map((viewer) => (
+              <li key={viewer.id} className="text-sm">
+                {viewer.nickname || '익명'}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       </section>
   
       {/* 댓글 섹션 */}

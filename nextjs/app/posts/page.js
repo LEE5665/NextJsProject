@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import Header from './Header';
+import Pagination from './Pagination';
 
 export default function AllPosts({ searchParams }) {
   const [posts, setPosts] = useState(null);
@@ -17,13 +18,8 @@ export default function AllPosts({ searchParams }) {
   const groupSize = 5;
 
   const { theme, setTheme } = useTheme();
-  const [navActive, setNavActive] = useState(false);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
-
-  // 검색 관련 상태 관리
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchFilter, setSearchFilter] = useState('title');
 
   // 테마 토글 함수
   const toggleTheme = () => {
@@ -249,7 +245,7 @@ export default function AllPosts({ searchParams }) {
         </main>
         <footer>
           <div className="pagination">
-            <button onClick={() => {}} disabled>
+            <button onClick={() => { }} disabled>
               이전
             </button>
             {Array.from({ length: groupSize }).map((_, index) => (
@@ -257,7 +253,7 @@ export default function AllPosts({ searchParams }) {
                 {index + 1}
               </button>
             ))}
-            <button onClick={() => {}} disabled>
+            <button onClick={() => { }} disabled>
               다음
             </button>
           </div>
@@ -274,72 +270,53 @@ export default function AllPosts({ searchParams }) {
         <section>
           <h2>게시글 목록</h2>
           <div className="articles">
-          {posts.length > 0 ? (
-            posts.map((post) => {
-              const firstImage = getFirstImageFromContent(post.content);
-              const postText = getTextFromContent(post.content);
-              return (
-                <Link href={`/post/${post.id}`} key={post.id} className="no-underline">
-                <article className="article">
-                    {firstImage && (
-                      <div
-                        className="image"
-                        style={{
-                          backgroundImage: `url(${firstImage})`,
-                        }}
-                      ></div>
-                    )}
-                    <div className="content">
-                      <h3>{post.title}</h3>
-                      <p className="meta">
-                      <span className="author">{post.isPrivate && '[Private] '}{post.author?.nickname || '익명'} | {new Date(post.createdAt).toLocaleDateString('ko-KR', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })}</span>
-                          <span className="views">VIEW {post.views || 0}</span>
-                      </p>
-                    <p className="preview">{postText.length > 100 ? `${postText.substring(0, 100)}...` : postText}</p>
-                    {post.tags && post.tags.length > 0 && (
-                        <div className="tags">
-                          {post.tags.map((tag) => (
-                            <span key={tag.id} className="tag javascript">
-                              {tag.name}
-                            </span>
-                          ))}
-                        </div>
+            {posts.length > 0 ? (
+              posts.map((post) => {
+                const firstImage = getFirstImageFromContent(post.content);
+                const postText = getTextFromContent(post.content);
+                return (
+                  <Link href={`/post/${post.id}`} key={post.id} className="no-underline">
+                    <article className="article">
+                      {firstImage && (
+                        <div
+                          className="image"
+                          style={{
+                            backgroundImage: `url(${firstImage})`,
+                          }}
+                        ></div>
                       )}
-                    </div>
-                </article>
-                </Link>
-              );
-            })
-          ) : (<p>{search && filter ? "검색 결과가 없습니다." : "게시글이 없습니다."}</p>)}
+                      <div className="content">
+                        <h3>{post.title}</h3>
+                        <p className="meta">
+                          <span className="author">{post.isPrivate && '[Private] '}{post.author?.nickname || '익명'} | {new Date(post.createdAt).toLocaleDateString('ko-KR', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                          })}</span>
+                          <span className="views">VIEW {post.views || 0}</span>
+                        </p>
+                        <p className="preview">{postText.length > 100 ? `${postText.substring(0, 100)}...` : postText}</p>
+                        {post.tags && post.tags.length > 0 && (
+                          <div className="tags">
+                            {post.tags.map((tag) => (
+                              <span key={tag.id} className="tag javascript">
+                                {tag.name}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </article>
+                  </Link>
+                );
+              })
+            ) : (<p>{search && filter ? "검색 결과가 없습니다." : "게시글이 없습니다."}</p>)}
           </div>
         </section>
-                  {/* 페이징 처리 */}
-                  <section className="pagination-container">
-            <div className="pagination">
-              {!posts.length > 0 || (<button onClick={handlePreviousGroup} disabled={currentPage <= groupSize}>
-                이전
-              </button>)}
-
-              {getPageNumbersForCurrentGroup().map((page) => (
-                <button
-                  key={page}
-                  onClick={() => handlePageChange(page)}
-                  disabled={page === currentPage}
-                  className={page === currentPage ? 'active' : ''}
-                >
-                  {page}
-                </button>
-              ))}
-              {!posts.length > 0 || (<button onClick={handleNextGroup} disabled={currentPage >= totalPages}>
-                다음
-              </button>)}
-
-            </div>
-          </section>
+        {/* 페이징 처리 */}
+        <section className="pagination-container">
+          <Pagination currentPage={currentPage} totalPages={totalPages} groupSize={groupSize} posts={posts} URL='/posts/?page=' />
+        </section>
       </main>
       <footer>
         <p>&copy; 2024 개발 게시판. All rights reserved.</p>
