@@ -3,10 +3,12 @@
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import { useState } from 'react';
 
 export default function Auth({ sessions }) {
     // 상태로 세션과 로딩 상태 관리
     const { data: session, status } = useSession();
+    const [menuOpen, setMenuOpen] = useState(false); 
 
     if (status === "loading") {
         return <div></div>; // 로딩 스피너를 사용할 수도 있습니다.
@@ -28,11 +30,16 @@ export default function Auth({ sessions }) {
 
     // 세션 정보가 있을 때
     return (
-        <div className="auth-buttons">
-            <span>{session.user.nickname}님 환영합니다!</span>
-              <Link href="/"><button onClick={() => signOut()}>
-                로그아웃
-              </button></Link>
-        </div>
-    );
+      <div className="auth-buttons">
+      <button onClick={() => setMenuOpen(!menuOpen)}>
+          {session.user.nickname}님 환영합니다!
+      </button>
+      {menuOpen && (
+          <div className="dropdown-menu">
+              <Link href="/mypage">마이페이지</Link>
+              <Link href="/"><button onClick={() => signOut()}>로그아웃</button></Link>
+          </div>
+      )}
+  </div>
+);
 }

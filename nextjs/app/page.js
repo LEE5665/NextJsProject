@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
-import Nav from './component/navlogin.js';
 import axios from 'axios';
 import Header from './posts/Header.js';
 

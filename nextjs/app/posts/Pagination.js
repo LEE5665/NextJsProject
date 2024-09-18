@@ -2,11 +2,13 @@
 
 import { useRouter } from 'next/navigation';
 
-export default function Pagination({ currentPage, totalPages, groupSize }) {
+export default function Pagination({ currentPage, totalPages, groupSize, posts, URL }) {
+  console.log(currentPage, totalPages, groupSize, posts, URL);
   const router = useRouter();
 
   const handlePageChange = (newPage) => {
-    router.push(`/posts/?page=${newPage}`);
+    console.log("이동");
+    router.push(`${URL}${newPage}`);
   };
 
   const handlePreviousGroup = () => {
@@ -32,17 +34,24 @@ export default function Pagination({ currentPage, totalPages, groupSize }) {
 
   return (
     <div className="pagination">
-      <button onClick={handlePreviousGroup} disabled={currentPage <= groupSize}>
-        이전
+    {!posts.length > 0 || (<button onClick={handlePreviousGroup} disabled={currentPage <= groupSize}>
+      이전
+    </button>)}
+
+    {getPageNumbersForCurrentGroup().map((page) => (
+      <button
+        key={page}
+        onClick={() => handlePageChange(page)}
+        disabled={page === currentPage}
+        className={page === currentPage ? 'active' : ''}
+      >
+        {page}
       </button>
-      {getPageNumbersForCurrentGroup().map((page) => (
-        <button key={page} onClick={() => handlePageChange(page)} disabled={page === currentPage}>
-          {page}
-        </button>
-      ))}
-      <button onClick={handleNextGroup} disabled={currentPage >= totalPages}>
-        다음
-      </button>
-    </div>
+    ))}
+    {!posts.length > 0 || (<button onClick={handleNextGroup} disabled={currentPage >= totalPages}>
+      다음
+    </button>)}
+
+  </div>
   );
 }
