@@ -20,6 +20,7 @@ export async function POST(req) {
     if (koreanRegex.test(password)) errors.password = '비밀번호에 한글이 포함되어 있습니다.';
 
     if (!nickname) errors.nickname = '닉네임을 입력하세요.';
+    if (nickname.length > 10) errors.nickname = '닉네임은 최대 10자까지 가능합니다.';
     if (!name) errors.name = '이름을 입력하세요.';
     if (!id) errors.id = '아이디를 입력하세요.';
     if (!email) errors.email = '이메일을 입력하세요.';
@@ -33,7 +34,7 @@ export async function POST(req) {
     if (existingId) {
         errors.id = '이미 사용 중인 아이디입니다.';
     }
-    const existingemail = await prisma.user.findUnique({ where: { id } });
+    const existingemail = await prisma.user.findUnique({ where: { email } });
     if (existingemail) {
         errors.email = '이미 사용 중인 이메일입니다.'
     }

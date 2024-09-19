@@ -7,8 +7,10 @@ import Pagination from '../posts/Pagination';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 export default function MyPage({ searchParams }) {
+    const { data: session, status, update } = useSession();
     const [isEditMode, setIsEditMode] = useState(false);
     const { theme, setTheme } = useTheme();
     const [activeTab, setActiveTab] = useState('myPosts');
@@ -19,6 +21,8 @@ export default function MyPage({ searchParams }) {
     const currentPage = searchParams.page || '1';
     const router = useRouter();
     const [userdata, setUserData] = useState([]);
+
+    const [formErrors, setFormErrors] = useState({});
 
     const handleEditToggle = () => {
         setIsEditMode(!isEditMode); // 수정 모드 전환
@@ -60,6 +64,28 @@ export default function MyPage({ searchParams }) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(content, 'text/html');
         return doc.body.textContent || '';
+    };
+
+    const Save = async (e) => {
+        e.preventDefault();
+        const form = new FormData(e.target);
+        try{
+            const response = await axios.post("/api/auth/update",
+                { nickname: form.get('nickname'),
+                    email: form.get('email'),
+                    password: form.get('password'),
+                    password2: form.get('password2'),
+                 });
+                 if(response.status === 200){
+                    update({...session?.user, nickname: form.get('nickname')});
+                    alert("회원정보가 변경되었습니다!");
+                    router.push('/');
+                 }
+        } catch(error){
+            if (error.response && error.response.data) {
+                setFormErrors(error.response.data.errors || {});
+            }
+        }
     };
 
     return (
@@ -104,8 +130,11 @@ export default function MyPage({ searchParams }) {
                                 </div>
                             ) : (
                                 // 수정 모드일 때, 폼 표시
-                                <form className="space-y-4">
+                                <form className="space-y-4" onSubmit={Save}>
                                     {/* 닉네임 */}
+                                    <p className="text-red-800">{formErrors.update}</p>
+                                    <p className="text-red-500">정보 변경은 일주일에 한 번 가능합니다.</p>
+                                    <p className="text-red-500">입력하는 모든 내용이 업데이트 됩니다.</p>
                                     <div>
                                         <label className="block text-sm font-medium mb-1" htmlFor="nickname">
                                             닉네임
@@ -115,10 +144,10 @@ export default function MyPage({ searchParams }) {
                                             id="nickname"
                                             name="nickname"
                                             className={`w-full p-2 border rounded-md ${theme === 'dark' ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-100 text-black border-gray-300'}`}
-                                            defaultValue="기존 닉네임"
+                                            defaultValue={userdata.nickname}
                                         />
                                     </div>
-                
+                                    <p className="text-red-500">{formErrors.nickname}</p>
                                     {/* 이메일 */}
                                     <div>
                                         <label className="block text-sm font-medium mb-1" htmlFor="email">
@@ -129,10 +158,10 @@ export default function MyPage({ searchParams }) {
                                             id="email"
                                             name="email"
                                             className={`w-full p-2 border rounded-md ${theme === 'dark' ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-100 text-black border-gray-300'}`}
-                                            defaultValue="example@email.com"
+                                            defaultValue={userdata.email}
                                         />
                                     </div>
-                
+                                    <p className="text-red-500">{formErrors.email}</p>
                                     {/* 비밀번호 */}
                                     <div>
                                         <label className="block text-sm font-medium mb-1" htmlFor="password">
@@ -146,7 +175,20 @@ export default function MyPage({ searchParams }) {
                                             placeholder="새 비밀번호 입력"
                                         />
                                     </div>
-                
+                                    <p className="text-red-500">{formErrors.password}</p>
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1" htmlFor="password">
+                                            비밀번호 확인
+                                        </label>
+                                        <input
+                                            type="password"
+                                            id="password"
+                                            name="password2"
+                                            className={`w-full p-2 border rounded-md ${theme === 'dark' ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-100 text-black border-gray-300'}`}
+                                            placeholder="확인용 새 비밀번호 입력"
+                                        />
+                                    </div>
+                                    <p className="text-red-500">{formErrors.password2}</p>
                                     {/* 회원 정보 수정 버튼 */}
                                     <div className="flex justify-between">
                                         <button
