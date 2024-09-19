@@ -16,6 +16,7 @@ model User {
   createdAt DateTime @default(now())
   posts     Post[]
   viewedPosts Post[] @relation("PostViewers")
+  updatedAt  DateTime?
   comments  Comment[]
 }
 

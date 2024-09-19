@@ -3,11 +3,9 @@
 import { useRouter } from 'next/navigation';
 
 export default function Pagination({ currentPage, totalPages, groupSize, posts, URL }) {
-  console.log(currentPage, totalPages, groupSize, posts, URL);
   const router = useRouter();
 
   const handlePageChange = (newPage) => {
-    console.log("이동");
     router.push(`${URL}${newPage}`);
   };
 

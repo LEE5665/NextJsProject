@@ -40,12 +40,17 @@ export const authOptions = {
         session.user.nickname = token.nickname;
         return session;
       },
-      async jwt({ token, user }) {
+      async jwt({ token, user, session, trigger }) {
         // 처음 로그인 시 JWT에 user id를 저장
         if (user) {
           token.id = user.id;
           token.nickname = user.nickname;
         }
+        if (trigger === 'update' && session) {
+          token.nickname = session.nickname;
+          return token;
+        }
+
         return token;
       }
       // 세션 콜백에서 session.user.id에 토큰에서 가져온 id 추가
