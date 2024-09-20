@@ -56,6 +56,7 @@ export default function Login() {
                         로그인
                     </button>
                 </form>
+
                 <Link href="/">
                     <button className="w-full mt-3 bg-[var(--toggle-bg)] text-[var(--toggle-text)] py-2 rounded-lg transition-all hover:bg-[var(--toggle-hover-bg)] dark:bg-[var(--toggle-bg)] dark:hover:bg-[var(--toggle-hover-bg)]">
                         돌아가기
@@ -63,6 +64,11 @@ export default function Login() {
                 </Link>
                 <div className="text-center text-[var(--text-secondary)] dark:text-[var(--text-secondary-dark)] mt-4">
                     <p>아직 회원이 아니신가요? <Link href="/signup" className="text-[var(--secondary-color)] dark:text-[var(--secondary-color)] hover:underline">회원가입</Link></p>
+                </div>
+                <div className="text-center mt-4">
+                    <Link href="/forget" className="text-[var(--secondary-color)] hover:underline">
+                        계정을 잊으셨나요?
+                    </Link>
                 </div>
             </div>
         </div>

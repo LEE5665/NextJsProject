@@ -51,7 +51,7 @@ export default function Header() {
   return (
       <>
         <header>
-          <div className="logo">개발 게시판</div>
+          <div onClick={() => {router.push("/")}} className="logo hover:text-blue-500 cursor-pointer text-xl font-bold transition-colors duration-300">개발 게시판</div>
           <Auth />
         </header>
   

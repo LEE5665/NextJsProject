@@ -24,7 +24,7 @@ export default function Signup() {
                 password2: formData.get('password2'),
             });
             if(response.status === 201) {
-                alert("회원가입 완료");
+                alert("이메일에서 인증을 완료 해 주세요. 이메일은 1시간동안 유효합니다.");
                 router.push('/');
             }
         } catch (error) {

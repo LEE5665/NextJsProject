@@ -17,11 +17,13 @@ export const authOptions = {
           const user = await prisma.user.findUnique({
             where: { id: credentials.id }
           });
-  
+          if (!user || !user.isVerified) {
+            return null
+          }
           if (user && await bcrypt.compare(credentials.password, user.password)) {
             return { nickname: user.nickname, id: user.id };
           }
-          return null;
+          return null
         }
       })
     ],

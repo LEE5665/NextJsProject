@@ -18,6 +18,8 @@ model User {
   viewedPosts Post[] @relation("PostViewers")
   updatedAt  DateTime?
   comments  Comment[]
+  verificationExpires DateTime @default(now())
+  isVerified Boolean   @default(false)
 }
 
 model Post {
