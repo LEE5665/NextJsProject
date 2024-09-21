@@ -1,4 +1,4 @@
-'use client';
+'use client'
 import { SessionProvider } from "next-auth/react";
 import "./globals.css";
 import { Noto_Sans_KR } from "next/font/google";
