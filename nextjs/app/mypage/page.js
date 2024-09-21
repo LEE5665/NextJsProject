@@ -72,7 +72,6 @@ export default function MyPage({ searchParams }) {
         try{
             const response = await axios.post("/api/auth/update",
                 { nickname: form.get('nickname'),
-                    email: form.get('email'),
                     password: form.get('password'),
                     password2: form.get('password2'),
                  });
@@ -148,19 +147,6 @@ export default function MyPage({ searchParams }) {
                                         />
                                     </div>
                                     <p className="text-red-500">{formErrors.nickname}</p>
-                                    {/* 이메일 */}
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1" htmlFor="email">
-                                            이메일
-                                        </label>
-                                        <input
-                                            type="email"
-                                            id="email"
-                                            name="email"
-                                            className={`w-full p-2 border rounded-md ${theme === 'dark' ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-100 text-black border-gray-300'}`}
-                                            defaultValue={userdata.email}
-                                        />
-                                    </div>
                                     <p className="text-red-500">{formErrors.email}</p>
                                     {/* 비밀번호 */}
                                     <div>

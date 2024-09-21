@@ -51,6 +51,7 @@ export default function NoticeEditor({ postToEdit = null, token }) {
 
   // 이미지 업로드 처리 함수
   const handleImageUpload = async () => {
+    console.log("hi");
     const input = document.createElement("input");
     input.setAttribute("type", "file");
     input.setAttribute("accept", "image/*");

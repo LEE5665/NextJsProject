@@ -14,7 +14,7 @@ export async function POST(req) {
     const kstNow = dayjs().tz('Asia/Seoul').toDate();
     const dbkstNow = dayjs().tz('Asia/Seoul').format();
     const session = await getServerSession(authOptions);
-    const { nickname, email, password, password2 } = await req.json();
+    const { nickname, password, password2 } = await req.json();
     //const oneWeekInMs = 7 * 24 * 60 * 60 * 1000;
     //const threeDayInMs = 3 * 24 * 60 * 60 * 1000;
 
@@ -26,18 +26,11 @@ export async function POST(req) {
     if (koreanRegex.test(password)) errors.password = '비밀번호에 한글이 포함되어 있습니다.';
     if (!nickname) errors.nickname = '닉네임을 입력하세요.';
     if (nickname.length > 10) errors.nickname = '닉네임은 최대 10자까지 가능합니다.';
-    if (!email) errors.email = '이메일을 입력하세요.';
     if (password.length < 8) errors.password = '비밀번호는 최소 8자 이상이어야 합니다.';
     if (password !== password2) errors.password2 = '비밀번호가 일치하지 않습니다.';
     const existingNickname = await prisma.user.findUnique({ where: { nickname } });
     if (existingNickname) {
         errors.nickname = '이미 사용 중인 닉네임입니다.';
-    }
-    const existingemail = await prisma.user.findUnique({ where: { email }, select:  {id: true}});
-    if (existingemail && (existingemail.id !== session.user.id) ) {
-        console.log(existingemail.id)
-        console.log(session.user.id)
-        errors.email = '이미 사용 중인 이메일입니다.'
     }
     
     const user = await prisma.user.findUnique({
@@ -74,7 +67,6 @@ export async function POST(req) {
             where: { nickname: session.user.nickname },
             data: {
                 nickname,
-                email,
                 password: hashpassword,
                 updatedAt: dbkstNow,
             }

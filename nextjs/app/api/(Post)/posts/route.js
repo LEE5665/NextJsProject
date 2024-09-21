@@ -6,12 +6,14 @@ const prisma = new PrismaClient();
 
 export const dynamic = "force-dynamic";
 
-export async function GET(req) {
+export async function GET(req) { 
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get('page')) || 1;
     const pageSize = parseInt(searchParams.get('pageSize')) || 15;
     const filter = searchParams.get('filter');
     const search = searchParams.get('search');
+    const username = searchParams.get('userid');
+    console.log(username);
 
     const skip = (page - 1) * pageSize;
     const take = pageSize;
@@ -59,6 +61,14 @@ export async function GET(req) {
                     break;
             }
         }
+        if (username) {
+            conditions = {
+                AND: [
+                    conditions,
+                    { authorId: username }
+                ]
+            };
+        }
         const posts = await prisma.post.findMany({
             skip,
             take,
@@ -75,8 +85,16 @@ export async function GET(req) {
         const totalPosts = await prisma.post.count({
             where: conditions,
         });
+        const postsByAuthor = await prisma.post.findMany({
+            where: { authorId: username },
+            include: {
+                author: true,
+            }
+        });
+        const userpostname = postsByAuthor.length > 0 ? postsByAuthor[0].author?.nickname : null;
         console.log("가져온 게시글 수:", posts.length);
-        return new Response(JSON.stringify({ posts, totalPosts }), {
+        
+        return new Response(JSON.stringify({ posts, totalPosts, ...(userpostname ? { userpostname } : {}) }), {
             status: 200,
         });
     } catch (error) {

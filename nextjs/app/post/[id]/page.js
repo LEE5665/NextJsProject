@@ -22,6 +22,7 @@ export default function PostDetail({ params }) {
   const [editingContent, setEditingContent] = useState(''); // 수정 중인 댓글 내용
   const [editingReplyId, setEditingReplyId] = useState(null);
   const [editingReplyContent, setEditingReplyContent] = useState('');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const timeData = {
     year: 'numeric',
@@ -46,6 +47,11 @@ export default function PostDetail({ params }) {
       fetchPost();
     }
   }, [id]);
+
+  //작성자 누를 시 메뉴 핸들러
+  const handleAuthorClick = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
     // 댓글 수정 시작 함수
     const handleEditComment = (comment) => {
@@ -348,9 +354,40 @@ export default function PostDetail({ params }) {
   
         <div className={`post-detail p-4 rounded-lg shadow-lg ${theme === 'dark' ? 'bg-[var(--card-bg-dark)] border border-[var(--card-border-dark)]' : 'bg-[var(--card-bg)] shadow-md'}`}>
           <div className="ql-editor" dangerouslySetInnerHTML={{ __html: post.content }} />
-          <p className={`mt-4 text-sm ${theme === 'dark' ? 'text-[var(--text-secondary)]' : 'text-[var(--text-primary)]'}`}>
+        {/* 작성자 정보 */}
+        <div className="relative">
+          <p
+            onClick={handleAuthorClick}
+            className={`mt-4 text-lg font-bold cursor-pointer transition-colors duration-300 ${
+    theme === 'dark'
+      ? `text-gray-300 ${post.author?.nickname ? 'hover:text-blue-400' : ''}`
+      : `text-gray-700 ${post.author?.nickname ? 'hover:text-blue-600' : ''}`
+  }`}
+          >
             작성자: {post.author?.nickname || '익명'}
           </p>
+
+          {/* 작성자 메뉴 */}
+          {isMenuOpen && post.author?.nickname && (
+            <div className={`absolute mt-2 p-2 border rounded-lg shadow-lg transition-colors duration-300 ${theme === 'dark' ? 'bg-gray-800 border-gray-600 text-gray-300' : 'bg-white border-gray-200 text-gray-700'}`}>
+              <ul>
+                <li
+                  onClick={() => router.push(`/posts?user=${post.authorId}`)}
+                  className="cursor-pointer p-2 hover:bg-blue-100 dark:hover:bg-blue-600"
+                >
+                  쪽지 보내기
+                </li>
+                <li
+                  onClick={() => router.push(`/posts?user=${post.authorId}`)}
+                  className="cursor-pointer p-2 hover:bg-blue-100 dark:hover:bg-blue-600"
+                >
+                  작성자 글 보기
+                </li>
+              </ul>
+            </div>
+          )}
+        </div>
+          
           <p className="mt-2 text-sm text-[var(--views-color)]">조회수: {post.views}</p>
         </div>
         {/* 공개된 사용자 정보 표시 */}

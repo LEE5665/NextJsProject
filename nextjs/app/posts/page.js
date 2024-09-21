@@ -14,6 +14,8 @@ export default function AllPosts({ searchParams }) {
   const currentPage = parseInt(searchParams?.page || '1');
   const filter = searchParams.filter;
   const search = searchParams.search;
+  const user = searchParams.user;
+  const [name, setname] = useState('');
   const pageSize = 12;
   const groupSize = 5;
 
@@ -36,12 +38,16 @@ export default function AllPosts({ searchParams }) {
           params: {
             page: currentPage,
             pageSize: pageSize,
-            filter,
-            search
+            filter: !user ? filter : undefined,
+            search: !user ? search : undefined,
+            userid: user || undefined,
           },
         });
         setPosts(response.data.posts);
         setTotalPages(Math.ceil(response.data.totalPosts / pageSize));
+        if(response.data.userpostname){
+          setname(response.data.userpostname);
+        }
       } catch (error) {
         console.error('게시글 가져오기 오류:', error);
       }
@@ -268,7 +274,7 @@ export default function AllPosts({ searchParams }) {
       <main>
         {/* 게시글 목록 섹션 */}
         <section>
-          <h2>게시글 목록</h2>
+          {filter && search ? (<h2>검색 결과</h2>) : ( user && name ? (<h2>{name}님의 글</h2>) : (<h2>게시글 목록</h2>) ) }
           <div className="articles">
             {posts.length > 0 ? (
               posts.map((post) => {

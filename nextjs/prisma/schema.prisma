@@ -20,6 +20,7 @@ model User {
   comments  Comment[]
   verificationExpires DateTime @default(now())
   isVerified Boolean   @default(false)
+  toDos     ToDo[]
 }
 
 model Post {
@@ -57,4 +58,14 @@ model Tag {
   id    Int     @id @default(autoincrement())
   name  String  @unique
   posts Post[] @relation
+}
+
+model ToDo {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  isCompleted Boolean   @default(false)
+  date        DateTime
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
 }
