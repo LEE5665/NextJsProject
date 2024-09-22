@@ -18,14 +18,16 @@ export async function GET(req) {
     const skip = (page - 1) * limit;
 
     const todayStart = new Date();
+    todayStart.setUTCHours(todayStart.getUTCHours() + 9);
+    console.log(todayStart);
     todayStart.setUTCHours(0, 0, 0, 0);
 
     const tomorrowStart = new Date(todayStart);
-    tomorrowStart.setDate(todayStart.getDate() + 1); // 하루 더하기
+    tomorrowStart.setUTCHours(tomorrowStart.getUTCHours() + 9); //9시간 더하기
 
 
     const todayEnd = new Date(tomorrowStart);
-    todayEnd.setUTCHours(23, 59, 59, 999); // 오늘의 마지막 시간 설정
+    todayEnd.setUTCHours(tomorrowStart.getUTCHours() + 23); // 오늘의 마지막 시간 설정
 
     try {
         console.log(skip,limit);
