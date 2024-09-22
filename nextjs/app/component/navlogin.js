@@ -81,7 +81,7 @@ export default function Auth() {
       pages.push(
         <button
           key={i}
-          className={`mx-1 px-2 py-1 rounded ${currentPage === i ? 'bg-[var(--secondary-color)] text-[var(--button-text)]' : 'bg-gray-300 text-gray-700'}`}
+          className={`mx-1 px-2 py-1 rounded ${currentPage === i ? 'bg-gray-700 text-white px-2 py-1 rounded hover:bg-gray-800 transition-transform transition-shadow whitespace-nowrap flex-shrink-0' : 'bg-gray-300 text-gray-700'}`}
           onClick={() => {
             setCurrentPage(i);
             fetchData(i);
@@ -106,11 +106,11 @@ export default function Auth() {
     const updatedTasks = targetList.map(task =>
       task.id === taskId
         ? {
-            ...task,
-            description: task.description.map((item, i) =>
-              i === index ? { ...item, text, checked } : item
-            ),
-          }
+          ...task,
+          description: task.description.map((item, i) =>
+            i === index ? { ...item, text, checked } : item
+          ),
+        }
         : task
     );
 
@@ -137,8 +137,8 @@ export default function Auth() {
     setActiveTab(tabName);
   };
 
-  const addTask = async () => {
-    if (newTask.name && newTask.date && newTask.description.length > 0) {
+  const addTask = async () => { // && newTask.description.length > 0
+    if (newTask.name && newTask.date) {
       try {
         const response = await axios.post("/api/todo/create", newTask);
         if (response.status === 200) {
@@ -153,24 +153,30 @@ export default function Auth() {
         }
         console.error("할 일 추가 실패:", error);
       }
+    } else {
+      alert("제목, 날짜를 입력 해 주세요.");
     }
   };
 
   const editTask = async (taskId, updatedTask) => {
-    try {
-      const response = await axios.put("/api/todo/edit", {
-        id: taskId,
-        title: updatedTask.title,
-        description: updatedTask.description,
-        date: updatedTask.date,
-      });
-      if (response.status === 200) {
-        console.log("할 일 수정 성공!");
-        setShowEditForm(false);
-        fetchData();
+    if (updatedTask.title && updatedTask.date) {
+      try {
+        const response = await axios.put("/api/todo/edit", {
+          id: taskId,
+          title: updatedTask.title,
+          description: updatedTask.description,
+          date: updatedTask.date,
+        });
+        if (response.status === 200) {
+          console.log("할 일 수정 성공!");
+          setShowEditForm(false);
+          fetchData();
+        }
+      } catch (error) {
+        console.error("할 일 수정 실패:", error);
       }
-    } catch (error) {
-      console.error("할 일 수정 실패:", error);
+    } else {
+      alert("제목, 날짜를 입력 해 주세요.");
     }
   };
 
@@ -241,6 +247,15 @@ export default function Auth() {
           onClick={() => setShowToDoList(!showToDoList)}
         >
           To-Do List
+          <svg
+            className={`ml-1 w-3 h-8 transition-transform duration-300 ${showToDoList ? 'rotate-180' : ''}`}
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+          </svg>
         </button>
 
         {/* 환영 메시지 버튼 */}
@@ -284,55 +299,54 @@ export default function Auth() {
 
       {/* To-Do List */}
       {showToDoList && (
-        <div className="absolute right-4 top-16 bg-[var(--card-bg)] dark:bg-[var(--card-bg)] p-6 rounded-lg shadow-lg z-50 w-96 transition-colors duration-300">
-          {/* 할 일 추가 버튼 */}
-          <div className="flex justify-between items-center mb-4">
-            <button
-              className="bg-[var(--button-bg)] text-[var(--button-text)] px-4 py-2 rounded hover:bg-[var(--button-hover-bg)] transition"
-              onClick={() => {
-                const tomorrow = new Date();
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                const formattedDate = tomorrow.toISOString().split("T")[0];
-                setNewTask({ ...newTask, date: formattedDate });
-                setShowForm(true);
-              }}
-            >
-              + 할 일 추가
-            </button>
-          </div>
-
-          {/* 최근 추가 목록 버튼 */}
-          <button
-            className="bg-[var(--button-bg)] text-[var(--button-text)] px-4 py-2 rounded hover:bg-[var(--button-hover-bg)] transition mb-4 w-full"
-            onClick={() => {
-              if (latestTask) {
-                setNewTask({
-                  name: latestTask.title,
-                  date: latestTask.date ? new Date(latestTask.date).toISOString().split("T")[0] : "",
-                  description: latestTask.description ? JSON.parse(latestTask.description) : []
-                });
-              }
-              setShowForm(true);
-            }}
-          >
-            최근 추가 목록
-          </button>
+  <div className="absolute right-4 top-16 bg-[var(--card-bg)] p-6 rounded-lg shadow-lg z-50 w-96 transition-colors duration-300">
+    {/* 할 일 추가 버튼과 최근 추가 목록 버튼을 한 줄로 배치 */}
+    <div className="flex justify-between items-center mb-4 space-x-4">
+      <button
+        className="flex-1 bg-[var(--button-bg)] text-[var(--button-text)] px-4 py-2 rounded hover:bg-[var(--button-hover-bg)] transition-transform transition-shadow"
+        onClick={() => {
+          const tomorrow = new Date();
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          const formattedDate = tomorrow.toISOString().split("T")[0];
+          setNewTask({ ...newTask, date: formattedDate });
+          setShowForm(true);
+        }}
+      >
+        + 할 일 추가
+      </button>
+      
+      <button
+        className="flex-1 bg-[var(--button-bg)] text-[var(--button-text)] px-4 py-2 rounded hover:bg-[var(--button-hover-bg)] transition-transform transition-shadow"
+        onClick={() => {
+          if (latestTask) {
+            setNewTask({
+              name: latestTask.title,
+              date: latestTask.date ? new Date(latestTask.date).toISOString().split("T")[0] : "",
+              description: latestTask.description ? JSON.parse(latestTask.description) : []
+            });
+          }
+          setShowForm(true);
+        }}
+      >
+        최근 추가한 항목
+      </button>
+    </div>
 
           {/* 할 일 추가 폼 */}
           {showForm && (
-            <div className="mb-4 border border-gray-300 dark:border-gray-700 p-4 rounded-lg bg-gray-50 dark:bg-gray-700">
+            <div className="mb-4 border border-[var(--card-border)] p-4 rounded-lg bg-[var(--card-bg)]">
               <input
                 type="text"
                 placeholder="이름"
                 value={newTask.name}
                 onChange={(e) => setNewTask({ ...newTask, name: e.target.value })}
-                className="border p-2 mb-2 w-full rounded bg-[var(--card-bg)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--secondary-color)] transition"
+                className="border p-2 mb-2 w-full rounded bg-[var(--card-bg)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary-color)] transition"
               />
               <input
                 type="date"
                 value={newTask.date}
                 onChange={(e) => setNewTask({ ...newTask, date: e.target.value })}
-                className="border p-2 mb-2 w-full rounded bg-[var(--card-bg)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--secondary-color)] transition"
+                className="border p-2 mb-2 w-full rounded bg-[var(--card-bg)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary-color)] transition"
               />
               {newTask.description.map((item, index) => (
                 <div key={index} className="flex items-center mb-2">
@@ -346,12 +360,12 @@ export default function Auth() {
                     type="text"
                     value={item.text}
                     onChange={(e) => updateCheckbox(index, e.target.value, item.checked)}
-                    className="border p-2 w-full rounded bg-[var(--card-bg)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--secondary-color)] transition"
+                    className="border p-2 w-full rounded bg-[var(--card-bg)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary-color)] transition"
                     placeholder="내용 입력"
                   />
-                  <button 
+                  <button
                     onClick={() => handleRemoveDescription(index)}
-                    className="ml-2 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition"
+                    className="ml-2 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-transform transition-shadow whitespace-nowrap flex-shrink-0"
                   >
                     제거
                   </button>
@@ -359,46 +373,61 @@ export default function Auth() {
               ))}
 
               {/* 체크리스트 추가 버튼 */}
-              <button
-                onClick={() => addCheckbox(false)}
-                className="bg-[var(--button-bg)] text-[var(--button-text)] px-2 py-1 rounded hover:bg-[var(--button-hover-bg)] transition mb-2"
-              >
-                + 체크리스트 추가
-              </button>
+              {/* 체크리스트 추가 및 저장 취소 버튼 레이아웃 */}
+              <div className="flex justify-between items-center mb-4">
+                {/* 체크리스트 추가 버튼 */}
+                <button
+                  onClick={() => addCheckbox(false)}
+                  className="bg-gray-700 text-white px-2 py-1 rounded hover:bg-gray-800 transition-transform transition-shadow"
+                >
+                  + 체크리스트 추가
+                </button>
 
-              <div className="flex justify-end">
-                <button className="bg-[var(--button-bg)] text-[var(--button-text)] px-4 py-2 rounded hover:bg-[var(--button-hover-bg)] transition mr-2" onClick={addTask}>
-                  저장
-                </button>
-                <button className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition" onClick={() => setShowForm(false)}>
-                  취소
-                </button>
+                {/* 저장 및 취소 버튼 */}
+                <div className="flex space-x-2">
+                  <button
+                    className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700 transition-transform transition-shadow"
+                    onClick={() => {
+                      setShowForm(false);
+                      setNewTask({ name: "", date: "", description: [] });
+                    }}
+                  >
+                    취소
+                  </button>
+                  <button
+                    className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700 transition-transform transition-shadow"
+                    onClick={addTask}
+                  >
+                    저장
+                  </button>
+                </div>
               </div>
             </div>
           )}
 
-          {/* 탭 버튼 */}
-          <div className="flex mb-4">
+          {/* 탭 버튼 - 변경된 부분 */}
+          <div className="tabs flex justify-between text-sm font-medium text-center text-gray-500 border-b mb-4">
             <button
-              className={`px-4 py-2 rounded-l-lg ${activeTab === "todo" ? "bg-[var(--secondary-color)] text-[var(--button-text)]" : "bg-gray-300 text-gray-700"} hover:bg-[var(--button-hover-bg)] transition`}
-              onClick={() => toggleTab("todo")}
+              className={`tab flex-1 p-4 hover:text-blue-600 ${activeTab === 'todo' ? 'text-blue-600':''}`} //${activeTab === 'todo' ? 'text-blue-600 border-blue-600 border-b-2' : ''}
+              onClick={() => toggleTab('todo')}
             >
               오늘 할 일
             </button>
             <button
-              className={`px-4 py-2 rounded-r-lg ${activeTab === "completed" ? "bg-[var(--secondary-color)] text-[var(--button-text)]" : "bg-gray-300 text-gray-700"} hover:bg-[var(--button-hover-bg)] transition`}
-              onClick={() => toggleTab("completed")}
+              className={`tab flex-1 p-4 hover:text-blue-600 ${activeTab === 'completed' ? 'text-blue-600':''}`} //${activeTab === 'completed' ? 'text-blue-600 border-blue-600 border-b-2' : ''}
+              onClick={() => toggleTab('completed')}
             >
-              할 일 설정
+              미리 설정
             </button>
           </div>
+          {/* 탭 버튼 - 변경된 부분 끝 */}
 
           {/* 오늘 할 일 목록 */}
           {activeTab === "todo" && (
             <ul>
               {todayTasks.length > 0 ? (
                 todayTasks.map((task, index) => (
-                  <li key={index} className="border-b dark:border-gray-700 p-2 flex flex-col">
+                  <li key={index} className="border-b border-[var(--card-border)] p-2 flex flex-col">
                     {showEditForm && editedTask.id === task.id ? (
                       // 수정 모드
                       <div className="mb-4">
@@ -406,13 +435,13 @@ export default function Auth() {
                           type="text"
                           value={editedTask.title}
                           onChange={(e) => setEditedTask({ ...editedTask, title: e.target.value })}
-                          className="border p-2 mb-2 w-full rounded bg-[var(--card-bg)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--secondary-color)] transition"
+                          className="border p-2 mb-2 w-full rounded bg-[var(--card-bg)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary-color)] transition"
                         />
                         <input
                           type="date"
                           value={editedTask.date ? new Date(editedTask.date).toISOString().split("T")[0] : ""}
                           onChange={(e) => setEditedTask({ ...editedTask, date: e.target.value })}
-                          className="border p-2 mb-2 w-full rounded bg-[var(--card-bg)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--secondary-color)] transition"
+                          className="border p-2 mb-2 w-full rounded bg-[var(--card-bg)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary-color)] transition"
                         />
                         {editedTask.description.map((desc, i) => (
                           <div key={i} className="flex items-center mb-2">
@@ -436,42 +465,44 @@ export default function Auth() {
                                 );
                                 setEditedTask({ ...editedTask, description: updatedDescription });
                               }}
-                              className="border p-2 w-full rounded bg-[var(--card-bg)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--secondary-color)] transition"
+                              className="border p-2 w-full rounded bg-[var(--card-bg)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary-color)] transition"
                               placeholder="내용 입력"
                             />
-                            <button 
+                            <button
                               onClick={() => handleRemoveDescription(i, true)}
-                              className="ml-2 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition"
+                              className="ml-2 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-transform transition-shadow whitespace-nowrap flex-shrink-0"
                             >
                               제거
                             </button>
                           </div>
                         ))}
 
-                        {/* 체크리스트 추가 버튼 */}
-                        <button
-                          onClick={() => addCheckbox(true)}
-                          className="bg-[var(--button-bg)] text-[var(--button-text)] px-2 py-1 rounded hover:bg-[var(--button-hover-bg)] transition mb-2"
-                        >
-                          + 체크리스트 추가
-                        </button>
+                        <div className="flex justify-between items-center mb-4">
+                          {/* 체크리스트 추가 버튼 */}
+                          <button
+                            onClick={() => addCheckbox(true)}
+                            className="bg-gray-700 text-white px-2 py-1 rounded hover:bg-gray-800 transition-transform transition-shadow"
+                          >
+                            + 체크리스트 추가
+                          </button>
 
-                        {/* 저장 및 취소 버튼 */}
-                        <div className="flex justify-end">
-                          <button
-                            className="bg-[var(--button-bg)] text-[var(--button-text)] px-4 py-2 rounded hover:bg-[var(--button-hover-bg)] transition mr-2"
-                            onClick={() => {
-                              editTask(editedTask.id, editedTask);
-                            }}
-                          >
-                            저장
-                          </button>
-                          <button
-                            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition"
-                            onClick={() => setShowEditForm(false)}
-                          >
-                            취소
-                          </button>
+                          {/* 저장 및 취소 버튼 */}
+                          <div className="flex space-x-2">
+                            <button
+                              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700 transition-transform transition-shadow"
+                              onClick={() => setShowEditForm(false)}
+                            >
+                              취소
+                            </button>
+                            <button
+                              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700 transition-transform transition-shadow"
+                              onClick={() => {
+                                editTask(editedTask.id, editedTask);
+                              }}
+                            >
+                              저장
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ) : (
@@ -488,7 +519,7 @@ export default function Auth() {
                                 onChange={(e) => serverUpdateCheckbox(task.id, i, desc.text, e.target.checked, true)}
                                 className="mr-2"
                               />
-                              <span className={`${desc.checked ? "line-through text-gray-500" : ""}`}>
+                              <span className={`${desc.checked ? "line-through text-[var(--text-secondary)]" : ""}`}>
                                 {desc.text}
                               </span>
                             </div>
@@ -496,7 +527,7 @@ export default function Auth() {
                         </div>
                         <div className="flex space-x-2">
                           <button
-                            className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 transition"
+                            className="bg-gray-700 text-white px-2 py-1 rounded hover:bg-gray-800 transition-transform transition-shadow whitespace-nowrap flex-shrink-0"
                             onClick={() => {
                               setEditedTask(task);
                               setShowEditForm(true);
@@ -505,7 +536,7 @@ export default function Auth() {
                             수정
                           </button>
                           <button
-                            className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition"
+                            className="bg-gray-700 text-white px-2 py-1 rounded hover:bg-gray-800 transition-transform transition-shadow whitespace-nowrap flex-shrink-0"
                             onClick={() => deleteTask(task.id, "todo")}
                           >
                             삭제
@@ -527,7 +558,7 @@ export default function Auth() {
               <ul>
                 {tasks.length > 0 ? (
                   tasks.map((task, index) => (
-                    <li key={index} className="border-b dark:border-gray-700 p-2 flex flex-col">
+                    <li key={index} className="border-b border-[var(--card-border)] p-2 flex flex-col">
                       {showEditForm && editedTask.id === task.id ? (
                         // 수정 모드
                         <div className="mb-4">
@@ -535,13 +566,13 @@ export default function Auth() {
                             type="text"
                             value={editedTask.title}
                             onChange={(e) => setEditedTask({ ...editedTask, title: e.target.value })}
-                            className="border p-2 mb-2 w-full rounded bg-[var(--card-bg)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--secondary-color)] transition"
+                            className="border p-2 mb-2 w-full rounded bg-[var(--card-bg)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary-color)] transition"
                           />
                           <input
                             type="date"
                             value={editedTask.date ? new Date(editedTask.date).toISOString().split("T")[0] : ""}
                             onChange={(e) => setEditedTask({ ...editedTask, date: e.target.value })}
-                            className="border p-2 mb-2 w-full rounded bg-[var(--card-bg)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--secondary-color)] transition"
+                            className="border p-2 mb-2 w-full rounded bg-[var(--card-bg)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary-color)] transition"
                           />
                           {editedTask.description.map((desc, i) => (
                             <div key={i} className="flex items-center mb-2">
@@ -565,42 +596,44 @@ export default function Auth() {
                                   );
                                   setEditedTask({ ...editedTask, description: updatedDescription });
                                 }}
-                                className="border p-2 w-full rounded bg-[var(--card-bg)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--secondary-color)] transition"
+                                className="border p-2 w-full rounded bg-[var(--card-bg)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary-color)] transition"
                                 placeholder="내용 입력"
                               />
-                              <button 
+                              <button
                                 onClick={() => handleRemoveDescription(i, true)}
-                                className="ml-2 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition"
+                                className="ml-2 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-transform transition-shadow whitespace-nowrap flex-shrink-0"
                               >
                                 제거
                               </button>
                             </div>
                           ))}
 
-                          {/* 체크리스트 추가 버튼 */}
-                          <button
-                            onClick={() => addCheckbox(true)}
-                            className="bg-[var(--button-bg)] text-[var(--button-text)] px-2 py-1 rounded hover:bg-[var(--button-hover-bg)] transition mb-2"
-                          >
-                            + 체크리스트 추가
-                          </button>
+                          <div className="flex justify-between items-center mb-4">
+                            {/* 체크리스트 추가 버튼 */}
+                            <button
+                              onClick={() => addCheckbox(true)}
+                              className="bg-gray-700 text-white px-2 py-1 rounded hover:bg-gray-800 transition-transform transition-shadow"
+                            >
+                              + 체크리스트 추가
+                            </button>
 
-                          {/* 저장 및 취소 버튼 */}
-                          <div className="flex justify-end">
-                            <button
-                              className="bg-[var(--button-bg)] text-[var(--button-text)] px-4 py-2 rounded hover:bg-[var(--button-hover-bg)] transition mr-2"
-                              onClick={() => {
-                                editTask(editedTask.id, editedTask);
-                              }}
-                            >
-                              저장
-                            </button>
-                            <button
-                              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition"
-                              onClick={() => setShowEditForm(false)}
-                            >
-                              취소
-                            </button>
+                            {/* 저장 및 취소 버튼 */}
+                            <div className="flex space-x-2">
+                              <button
+                                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700 transition-transform transition-shadow"
+                                onClick={() => setShowEditForm(false)}
+                              >
+                                취소
+                              </button>
+                              <button
+                                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700 transition-transform transition-shadow"
+                                onClick={() => {
+                                  editTask(editedTask.id, editedTask);
+                                }}
+                              >
+                                저장
+                              </button>
+                            </div>
                           </div>
                         </div>
                       ) : (
@@ -617,7 +650,7 @@ export default function Auth() {
                                   onChange={(e) => serverUpdateCheckbox(task.id, i, desc.text, e.target.checked)}
                                   className="mr-2"
                                 />
-                                <span className={`${desc.checked ? "line-through text-gray-500" : ""}`}>
+                                <span className={`${desc.checked ? "line-through text-[var(--text-secondary)]" : ""}`}>
                                   {desc.text}
                                 </span>
                               </div>
@@ -625,7 +658,7 @@ export default function Auth() {
                           </div>
                           <div className="flex space-x-2">
                             <button
-                              className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 transition"
+                              className="bg-gray-700 text-white px-2 py-1 rounded hover:bg-gray-800 transition-transform transition-shadow whitespace-nowrap flex-shrink-0"
                               onClick={() => {
                                 setEditedTask(task);
                                 setShowEditForm(true);
@@ -634,7 +667,7 @@ export default function Auth() {
                               수정
                             </button>
                             <button
-                              className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition"
+                              className="bg-gray-700 text-white px-2 py-1 rounded hover:bg-gray-800 transition-transform transition-shadow whitespace-nowrap flex-shrink-0"
                               onClick={() => deleteTask(task.id, "completed")}
                             >
                               삭제
@@ -652,7 +685,7 @@ export default function Auth() {
               {/* 페이지네이션 */}
               <div className="flex justify-between mt-4">
                 <button
-                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  className="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800 dark:bg-gray-800 dark:hover:bg-gray-900 transition-transform transition-shadow whitespace-nowrap flex-shrink-0 disabled:bg-gray-300 disabled:cursor-not-allowed"
                   onClick={() => changePage(currentPage - 1)}
                   disabled={currentPage === 1}
                 >
@@ -662,7 +695,7 @@ export default function Auth() {
                   {renderPageNumbers()}
                 </div>
                 <button
-                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  className="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800 dark:bg-gray-800 dark:hover:bg-gray-900 transition-transform transition-shadow whitespace-nowrap flex-shrink-0 disabled:bg-gray-300 disabled:cursor-not-allowed"
                   onClick={() => changePage(currentPage + 1)}
                   disabled={currentPage === totalPages}
                 >
@@ -675,4 +708,4 @@ export default function Auth() {
       )}
     </div>
   );
-}
+};
