@@ -323,7 +323,7 @@ export default function PostDetail({ params }) {
     <div className={`min-h-screen p-6 ${theme === 'dark' ? 'bg-[var(--background-color)] text-[var(--text-primary)]' : 'bg-[var(--background-color)] text-[var(--text-primary)]'}`}>
       {/* Header */}
       <header className="flex justify-between items-center mb-4">
-        <div className="text-2xl font-bold">개발 게시판</div>
+      <div onClick={() => {router.push("/")}} className="logo hover:text-blue-500 cursor-pointer text-xl font-bold transition-colors duration-300">개발 게시판</div>
         <button className="theme-toggle p-2 bg-[var(--toggle-bg)] text-white rounded-lg" onClick={toggleTheme}>
           {theme === 'dark' ? '라이트 모드' : '다크 모드'}
         </button>

@@ -30,7 +30,7 @@ model Post {
   createdAt  DateTime @default(now())
   updatedAt  DateTime?
   views      Int      @default(0)
-  author     User?    @relation(fields: [authorId], references: [id])
+  author     User?    @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId   String?
   password   String?
   tags       Tag[]
@@ -44,12 +44,12 @@ model Comment {
   content    String   @db.MediumText
   createdAt  DateTime @default(now())
   updatedAt  DateTime?
-  author     User?    @relation(fields: [authorId], references: [id])
+  author     User?    @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId   String?
   post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId     Int
   replies    Comment[] @relation("CommentReplies")
-  parent     Comment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  parent     Comment? @relation("CommentReplies", fields: [parentId], references: [id])
   parentId   Int?
   password   String?
 }
@@ -66,6 +66,6 @@ model ToDo {
   description String
   isCompleted Boolean   @default(false)
   date        DateTime
-  user        User      @relation(fields: [userId], references: [id])
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      String
 }

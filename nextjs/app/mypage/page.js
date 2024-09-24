@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { signOut } from 'next-auth/react';
 
 export default function MyPage({ searchParams }) {
     const { data: session, status, update } = useSession();
@@ -21,6 +22,7 @@ export default function MyPage({ searchParams }) {
     const currentPage = searchParams.page || '1';
     const router = useRouter();
     const [userdata, setUserData] = useState([]);
+    const [showPasswordForm, setshowPasswordForm] = useState(false);
 
     const [formErrors, setFormErrors] = useState({});
 
@@ -35,7 +37,7 @@ export default function MyPage({ searchParams }) {
                 const response = await axios.get(`/api/userdata?category=${activeTab}&page=${currentPage}&pageSize=${pageSize}`);
                 setData(response.data.posts);
                 setTotalPages(Math.ceil(response.data.totalPosts / pageSize));  // 총 페이지 수 계산
-                if(response.data.account){
+                if (response.data.account) {
                     setUserData(response.data.account);
                 }
             } catch (error) {
@@ -45,6 +47,36 @@ export default function MyPage({ searchParams }) {
         };
         fetchData();
     }, [activeTab, currentPage]);
+
+    const handlePasswordSubmit = async (e) => {
+        e.preventDefault();
+        const form = new FormData(e.target);
+        try {
+            const response = await axios.post('/api/auth/deleteid', { password : form.get('password') });
+            console.log(response.status);
+            if (response.status === 200) {
+                let confirmResult = confirm("정말 회원탈퇴를 하시겠습니까?");
+
+                if(confirmResult) {
+                    try {
+                        const response = await axios.delete('/api/auth/deleteid');
+                        if (response.status === 200) {
+                            alert("회원탈퇴 완료"); 
+                            signOut();
+                            router.push('/');
+                        }
+                    } catch (error) {
+                        console.log("에러");
+                    }
+                }
+            }
+        } catch (error) {
+            if(error.response.data.error){
+                alert("비밀번호가 틀렸습니다!");
+            }
+            console.log("로그인 처리 중 오류 발생:");
+        }
+    }
 
     const Activehandel = (category) => {
         setActiveTab(category);
@@ -69,18 +101,19 @@ export default function MyPage({ searchParams }) {
     const Save = async (e) => {
         e.preventDefault();
         const form = new FormData(e.target);
-        try{
+        try {
             const response = await axios.post("/api/auth/update",
-                { nickname: form.get('nickname'),
+                {
+                    nickname: form.get('nickname'),
                     password: form.get('password'),
                     password2: form.get('password2'),
-                 });
-                 if(response.status === 200){
-                    update({...session?.user, nickname: form.get('nickname')});
-                    alert("회원정보가 변경되었습니다!");
-                    router.push('/');
-                 }
-        } catch(error){
+                });
+            if (response.status === 200) {
+                update({ ...session?.user, nickname: form.get('nickname') });
+                alert("회원정보가 변경되었습니다!");
+                router.push('/');
+            }
+        } catch (error) {
             if (error.response && error.response.data) {
                 setFormErrors(error.response.data.errors || {});
             }
@@ -109,107 +142,120 @@ export default function MyPage({ searchParams }) {
 
                     <section className="p-4">
 
-                        {activeTab === "myInfo" ? ( !userdata || 
+                        {activeTab === "myInfo" ? (!userdata ||
                             <div className={`max-w-lg mx-auto p-6 rounded-md shadow-lg ${theme === 'dark' ? 'bg-[var(--card-bg-dark)] border border-[var(--card-border-dark)] text-white' : 'bg-[var(--card-bg)] text-black'}`}>
-                            <h2 className="text-2xl font-bold mb-4">내 정보</h2>
-                
-                            {!isEditMode ? (
-                                // 수정 모드가 아닐 때, 정보만 표시
-                                <div>
-                                    <p><strong>이름:</strong> {userdata.name}</p>
-                                    <p><strong>닉네임:</strong> {userdata.nickname}</p>
-                                    <p><strong>이메일:</strong> {userdata.email}</p>
-                                    {/* 수정 모드로 전환 버튼 */}
+                                <h2 className="text-2xl font-bold mb-4">내 정보</h2>
+
+                                {!isEditMode ? (
+                                    // 수정 모드가 아닐 때, 정보만 표시
+                                    <div>
+                                        <p><strong>이름:</strong> {userdata.name}</p>
+                                        <p><strong>닉네임:</strong> {userdata.nickname}</p>
+                                        <p><strong>이메일:</strong> {userdata.email}</p>
+                                        {/* 수정 모드로 전환 버튼 */}
+                                        <button
+                                            onClick={handleEditToggle}
+                                            className={`w-full py-2 px-4 mt-4 rounded-md text-white ${theme === 'dark' ? 'bg-[var(--button-bg-dark)] hover:bg-[var(--button-hover-bg-dark)]' : 'bg-[var(--button-bg)] hover:bg-[var(--button-hover-bg)]'} transition-colors`}
+                                        >
+                                            수정하기
+                                        </button>
+                                    </div>
+                                ) : (
+                                    // 수정 모드일 때, 폼 표시
+                                    <form className="space-y-4" onSubmit={Save}>
+                                        {/* 닉네임 */}
+                                        <p className="text-red-800">{formErrors.update}</p>
+                                        <p className="text-red-500">정보 변경은 일주일에 한 번 가능합니다.</p>
+                                        <p className="text-red-500">입력하는 모든 내용이 업데이트 됩니다.</p>
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1" htmlFor="nickname">
+                                                닉네임
+                                            </label>
+                                            <input
+                                                type="text"
+                                                id="nickname"
+                                                name="nickname"
+                                                className={`w-full p-2 border rounded-md ${theme === 'dark' ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-100 text-black border-gray-300'}`}
+                                                defaultValue={userdata.nickname}
+                                            />
+                                        </div>
+                                        <p className="text-red-500">{formErrors.nickname}</p>
+                                        <p className="text-red-500">{formErrors.email}</p>
+                                        {/* 비밀번호 */}
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1" htmlFor="password">
+                                                비밀번호
+                                            </label>
+                                            <input
+                                                type="password"
+                                                id="password"
+                                                name="password"
+                                                className={`w-full p-2 border rounded-md ${theme === 'dark' ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-100 text-black border-gray-300'}`}
+                                                placeholder="새 비밀번호 입력"
+                                            />
+                                        </div>
+                                        <p className="text-red-500">{formErrors.password}</p>
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1" htmlFor="password">
+                                                비밀번호 확인
+                                            </label>
+                                            <input
+                                                type="password"
+                                                id="password"
+                                                name="password2"
+                                                className={`w-full p-2 border rounded-md ${theme === 'dark' ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-100 text-black border-gray-300'}`}
+                                                placeholder="확인용 새 비밀번호 입력"
+                                            />
+                                        </div>
+                                        <p className="text-red-500">{formErrors.password2}</p>
+                                        {/* 회원 정보 수정 버튼 */}
+                                        <div className="flex justify-between">
+                                            <button
+                                                type="submit"
+                                                className={`py-2 px-4 rounded-md text-white ${theme === 'dark' ? 'bg-[var(--button-bg-dark)] hover:bg-[var(--button-hover-bg-dark)]' : 'bg-[var(--button-bg)] hover:bg-[var(--button-hover-bg)]'} transition-colors`}
+                                            >
+                                                저장하기
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={handleEditToggle}
+                                                className="py-2 px-4 rounded-md bg-gray-500 hover:bg-gray-600 text-white"
+                                            >
+                                                취소
+                                            </button>
+                                        </div>
+                                    </form>
+                                )}
+
+                                {/* 회원 탈퇴 */}
+                                <div className="mt-6 text-center">
                                     <button
-                                        onClick={handleEditToggle}
-                                        className={`w-full py-2 px-4 mt-4 rounded-md text-white ${theme === 'dark' ? 'bg-[var(--button-bg-dark)] hover:bg-[var(--button-hover-bg-dark)]' : 'bg-[var(--button-bg)] hover:bg-[var(--button-hover-bg)]'} transition-colors`}
+                                        type="button"
+                                        className="text-red-500 hover:text-red-600 font-medium"
+                                        onClick={() => {
+                                            setshowPasswordForm(!showPasswordForm)
+                                        }}
                                     >
-                                        수정하기
+                                        회원 탈퇴
                                     </button>
-                                </div>
-                            ) : (
-                                // 수정 모드일 때, 폼 표시
-                                <form className="space-y-4" onSubmit={Save}>
-                                    {/* 닉네임 */}
-                                    <p className="text-red-800">{formErrors.update}</p>
-                                    <p className="text-red-500">정보 변경은 일주일에 한 번 가능합니다.</p>
-                                    <p className="text-red-500">입력하는 모든 내용이 업데이트 됩니다.</p>
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1" htmlFor="nickname">
-                                            닉네임
-                                        </label>
-                                        <input
-                                            type="text"
-                                            id="nickname"
-                                            name="nickname"
-                                            className={`w-full p-2 border rounded-md ${theme === 'dark' ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-100 text-black border-gray-300'}`}
-                                            defaultValue={userdata.nickname}
-                                        />
-                                    </div>
-                                    <p className="text-red-500">{formErrors.nickname}</p>
-                                    <p className="text-red-500">{formErrors.email}</p>
-                                    {/* 비밀번호 */}
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1" htmlFor="password">
-                                            비밀번호
-                                        </label>
+                                    {showPasswordForm && (
+                                    <form onSubmit={handlePasswordSubmit} className="mt-4">
                                         <input
                                             type="password"
-                                            id="password"
                                             name="password"
-                                            className={`w-full p-2 border rounded-md ${theme === 'dark' ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-100 text-black border-gray-300'}`}
-                                            placeholder="새 비밀번호 입력"
+                                            placeholder="비밀번호를 입력하세요"
+                                            className="w-full p-2 border rounded-md"
                                         />
-                                    </div>
-                                    <p className="text-red-500">{formErrors.password}</p>
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1" htmlFor="password">
-                                            비밀번호 확인
-                                        </label>
-                                        <input
-                                            type="password"
-                                            id="password"
-                                            name="password2"
-                                            className={`w-full p-2 border rounded-md ${theme === 'dark' ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-100 text-black border-gray-300'}`}
-                                            placeholder="확인용 새 비밀번호 입력"
-                                        />
-                                    </div>
-                                    <p className="text-red-500">{formErrors.password2}</p>
-                                    {/* 회원 정보 수정 버튼 */}
-                                    <div className="flex justify-between">
                                         <button
                                             type="submit"
-                                            className={`py-2 px-4 rounded-md text-white ${theme === 'dark' ? 'bg-[var(--button-bg-dark)] hover:bg-[var(--button-hover-bg-dark)]' : 'bg-[var(--button-bg)] hover:bg-[var(--button-hover-bg)]'} transition-colors`}
+                                            className="w-full py-2 px-4 mt-2 bg-red-500 hover:bg-red-600 text-white rounded-md"
                                         >
-                                            저장하기
+                                            회원 탈퇴 확인
                                         </button>
-                                        <button
-                                            type="button"
-                                            onClick={handleEditToggle}
-                                            className="py-2 px-4 rounded-md bg-gray-500 hover:bg-gray-600 text-white"
-                                        >
-                                            취소
-                                        </button>
-                                    </div>
-                                </form>
-                            )}
-                
-                            {/* 회원 탈퇴 */}
-                            <div className="mt-6 text-center">
-                                <button
-                                    type="button"
-                                    className="text-red-500 hover:text-red-600 font-medium"
-                                    onClick={() => {
-                                        // 회원 탈퇴 로직 추가
-                                        if (confirm("정말로 회원 탈퇴를 하시겠습니까?")) {
-                                            // 탈퇴 처리 로직
-                                        }
-                                    }}
-                                >
-                                    회원 탈퇴
-                                </button>
+                                    </form>
+                                )}
+                                </div>
                             </div>
-                        </div>
                         ) :
 
                             (
