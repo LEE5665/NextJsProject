@@ -289,6 +289,12 @@ export default function Auth() {
             마이페이지
           </button>
           <button
+            onClick={() => router.push('/note')}
+            className="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-t-md"
+          >
+            쪽지 확인
+          </button>
+          <button
             onClick={() => signOut()}
             className="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-b-md"
           >
