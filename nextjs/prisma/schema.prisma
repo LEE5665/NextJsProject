@@ -9,7 +9,7 @@ datasource db {
 
 model User {
   id        String      @id
-  name  String
+  name      String
   nickname  String   @unique
   email     String   @unique
   password  String
@@ -21,6 +21,8 @@ model User {
   verificationExpires DateTime @default(now())
   isVerified Boolean   @default(false)
   toDos     ToDo[]
+  pms       Pm[]
+  alarms    Alarm[]
 }
 
 model Post {
@@ -68,4 +70,23 @@ model ToDo {
   date        DateTime
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      String
+}
+
+model Pm {
+  id         Int  @id @default(autoincrement())
+  name       String
+  title      String
+  content    String
+  createdAt  DateTime @default(now())
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+}
+
+model Alarm {
+  id          Int    @id @default(autoincrement())
+  message    String
+  createdAt  DateTime @default(now())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  count      Int
 }
