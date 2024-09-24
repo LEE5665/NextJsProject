@@ -366,7 +366,6 @@ export default function PostDetail({ params }) {
           >
             작성자: {post.author?.nickname || '익명'}
           </p>
-
           {/* 작성자 메뉴 */}
           {isMenuOpen && post.author?.nickname && (
             <div className={`absolute mt-2 p-2 border rounded-lg shadow-lg transition-colors duration-300 ${theme === 'dark' ? 'bg-gray-800 border-gray-600 text-gray-300' : 'bg-white border-gray-200 text-gray-700'}`}>
@@ -375,14 +374,17 @@ export default function PostDetail({ params }) {
                   onClick={() => router.push(`/posts?user=${post.authorId}`)}
                   className="cursor-pointer p-2 hover:bg-blue-100 dark:hover:bg-blue-600"
                 >
-                  쪽지 보내기
-                </li>
-                <li
-                  onClick={() => router.push(`/posts?user=${post.authorId}`)}
-                  className="cursor-pointer p-2 hover:bg-blue-100 dark:hover:bg-blue-600"
-                >
                   작성자 글 보기
                 </li>
+                {session?.user?.id && (
+                <li
+                onClick={() => router.push(`/posts?user=${post.authorId}`)}
+                className="cursor-pointer p-2 hover:bg-blue-100 dark:hover:bg-blue-600"
+              >
+                쪽지 보내기
+              </li>
+                )}
+
               </ul>
             </div>
           )}
