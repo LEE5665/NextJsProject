@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import axios from 'axios';
 import { useTheme } from 'next-themes';
+import Pm from '@/app/posts/Pm';
 
 export default function PostDetail({ params }) {
   const router = useRouter();
@@ -365,6 +366,7 @@ export default function PostDetail({ params }) {
   }`}
           >
             작성자: {post.author?.nickname || '익명'}
+            {/* <Pm togle={true}/> */}
           </p>
           {/* 작성자 메뉴 */}
           {isMenuOpen && post.author?.nickname && (
@@ -376,14 +378,14 @@ export default function PostDetail({ params }) {
                 >
                   작성자 글 보기
                 </li>
-                {session?.user?.id && (
+                {/* {session?.user?.id && (
                 <li
                 onClick={() => router.push(`/posts?user=${post.authorId}`)}
                 className="cursor-pointer p-2 hover:bg-blue-100 dark:hover:bg-blue-600"
               >
                 쪽지 보내기
               </li>
-                )}
+                )} */}
 
               </ul>
             </div>

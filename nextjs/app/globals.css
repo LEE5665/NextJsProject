@@ -637,3 +637,14 @@ button:active {
   transform: translateY(0);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
+.note-form-wrapper {
+  position: absolute;
+  z-index: 9999; /* 다른 요소보다 높게 설정 */
+  top: 50px; /* 버튼의 위치를 기준으로 설정 */
+  left: 0;
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
