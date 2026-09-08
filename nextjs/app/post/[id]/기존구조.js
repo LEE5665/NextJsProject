@@ -1,11 +1,12 @@
 "use client"
+import { sanitizePostHtml } from "@/lib/sanitize-post-html.mjs";
 
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import axios from 'axios';
-import 'react-quill/dist/quill.snow.css';
+import 'react-quill-new/dist/quill.snow.css';
 import styles from './page.module.css'
 
 export default function PostDetail({ params }) {
@@ -110,7 +111,7 @@ export default function PostDetail({ params }) {
         <div className="post-detail">
           {/* Quill 에디터로 작성된 HTML을 렌더링 */}
           <div 
-            className="ql-editor" dangerouslySetInnerHTML={{ __html: post.content }} 
+            className="ql-editor" dangerouslySetInnerHTML={{ __html: sanitizePostHtml(post.content) }}
           /> 
           <p className="author">작성자: {post.author?.nickname || '익명'}</p> {/* 작성자 정보 */}
         </div>

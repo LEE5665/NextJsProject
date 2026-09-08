@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import axios from 'axios';
 
-export default function ResetPassword({ searchParams }) {
+export default function ResetPassword({ searchParams: searchParamsPromise }) {
+  const searchParams = use(searchParamsPromise);
     const { theme } = useTheme();
     const router = useRouter();
     const [password, setPassword] = useState('');
@@ -28,7 +29,7 @@ export default function ResetPassword({ searchParams }) {
             }
         }
         data();
-    }, [])
+    }, [router, token])
 
     const handleSubmit = async (e) => {
         e.preventDefault();

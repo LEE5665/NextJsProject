@@ -1,13 +1,11 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../../../auth/[...nextauth]/route.js'
 import path from 'path';
 import fs from 'fs';
 
-const prisma = new PrismaClient();
-
 export async function POST(req, { params }) {
-    const { id } = params;
+    const { id } = await params;
     const { password } = await req.json();
   
     // 세션 가져오기

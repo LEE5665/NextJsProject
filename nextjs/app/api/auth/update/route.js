@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../[...nextauth]/route";
 import bcrypt from "bcryptjs"
@@ -6,7 +6,6 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 
-const prisma = new PrismaClient();
 dayjs.extend(utc);
 dayjs.extend(timezone);
 

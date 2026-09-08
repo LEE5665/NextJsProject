@@ -1,7 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import { createVerificationToken, sendVerificationEmail } from "../signup/email";
-
-const prisma = new PrismaClient();
 
 export async function POST(req){
     const { email } = await req.json();

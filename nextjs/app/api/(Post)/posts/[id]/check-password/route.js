@@ -1,10 +1,8 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 
-const prisma = new PrismaClient();
-
 export async function POST(req, { params }) {
-  const { id } = params;
+  const { id } = await params;
   const { password } = await req.json();
 
   // 게시물 찾기

@@ -1,6 +1,7 @@
-'use client'; // 클라이언트 컴포넌트 선언
+'use client';
+ // 클라이언트 컴포넌트 선언
 
-import { useState, useEffect } from 'react';
+import { use, useState, useEffect } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -8,7 +9,8 @@ import { useTheme } from 'next-themes';
 import Header from './Header';
 import Pagination from './Pagination';
 
-export default function AllPosts({ searchParams }) {
+export default function AllPosts({ searchParams: searchParamsPromise }) {
+  const searchParams = use(searchParamsPromise);
   const [posts, setPosts] = useState(null);
   const [totalPages, setTotalPages] = useState(1);
   const currentPage = parseInt(searchParams?.page || '1');
@@ -54,7 +56,7 @@ export default function AllPosts({ searchParams }) {
     };
 
     fetchData();
-  }, [currentPage, filter, search]);
+  }, [currentPage, filter, search, user]);
 
   // // 모바일 네비게이션 토글
   // const toggleNavMenu = () => {

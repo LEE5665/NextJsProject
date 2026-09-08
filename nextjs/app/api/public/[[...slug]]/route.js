@@ -1,7 +1,7 @@
 import fs from 'fs/promises'; // fs를 프로미스 방식으로 사용
 
 export async function GET(req, { params }) {
-  const { slug } = params;
+  const { slug } = await params;
 
   if (slug && slug.length) {
     // 파일 경로 설정

@@ -1,6 +1,7 @@
 'use client';
+import { sanitizePostHtml } from "@/lib/sanitize-post-html.mjs";
 
-import { useState, useEffect } from 'react';
+import { use, useState, useEffect } from 'react';
 import axios from 'axios';
 import Header from '../posts/Header';
 import Pagination from '../posts/Pagination';
@@ -10,7 +11,8 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { signOut } from 'next-auth/react';
 
-export default function MyPage({ searchParams }) {
+export default function MyPage({ searchParams: searchParamsPromise }) {
+  const searchParams = use(searchParamsPromise);
     const { data: session, status, update } = useSession();
     const [isEditMode, setIsEditMode] = useState(false);
     const { theme, setTheme } = useTheme();
@@ -46,7 +48,7 @@ export default function MyPage({ searchParams }) {
             }
         };
         fetchData();
-    }, [activeTab, currentPage]);
+    }, [activeTab, currentPage, router]);
 
     const handlePasswordSubmit = async (e) => {
         e.preventDefault();
@@ -349,7 +351,7 @@ export default function MyPage({ searchParams }) {
                                                             <div
                                                                 className={`mt-2 mb-4 ${theme === "dark" ? "text-gray-300" : "text-gray-700"
                                                                     }`}
-                                                                dangerouslySetInnerHTML={{ __html: item.content }}
+                                                                dangerouslySetInnerHTML={{ __html: sanitizePostHtml(item.content) }}
                                                             ></div>
 
                                                             <div className="text-sm text-gray-500 dark:text-gray-400">

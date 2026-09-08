@@ -1,14 +1,16 @@
 'use client';
+import { sanitizePostHtml } from "@/lib/sanitize-post-html.mjs";
 
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { use, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import axios from 'axios';
 import { useTheme } from 'next-themes';
 import Pm from '@/app/posts/Pm';
 
-export default function PostDetail({ params }) {
+export default function PostDetail({ params: paramsPromise }) {
+  const params = use(paramsPromise);
   const router = useRouter();
   const { data: session } = useSession();
   const { id } = params;
@@ -32,7 +34,6 @@ export default function PostDetail({ params }) {
     hour: '2-digit',
     minute: '2-digit'
   }
-
 
   useEffect(() => {
     if (id) {
@@ -66,7 +67,6 @@ export default function PostDetail({ params }) {
     const handleCancelEditReply = () => {
       setEditingReplyId(null); // 수정 취소
     };
-
 
     // 댓글 수정 제출 함수
     const handleUpdateCommentOrReply = async (authorId, isReply = false, parentCommentId = null) => {
@@ -354,7 +354,7 @@ export default function PostDetail({ params }) {
         </div>
   
         <div className={`post-detail p-4 rounded-lg shadow-lg ${theme === 'dark' ? 'bg-[var(--card-bg-dark)] border border-[var(--card-border-dark)]' : 'bg-[var(--card-bg)] shadow-md'}`}>
-          <div className="ql-editor" dangerouslySetInnerHTML={{ __html: post.content }} />
+          <div className="ql-editor" dangerouslySetInnerHTML={{ __html: sanitizePostHtml(post.content) }} />
         {/* 작성자 정보 */}
         <div className="relative">
           <p

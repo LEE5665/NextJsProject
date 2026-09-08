@@ -1,9 +1,7 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 export async function GET(req, { params }) {
-    const {id} = params;
+    const {id} = await params;
     try {
       const view = await prisma.post.update({
         where: { id: parseInt(id) },

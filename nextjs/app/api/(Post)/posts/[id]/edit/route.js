@@ -1,4 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { sanitizePostHtml } from "@/lib/sanitize-post-html.mjs";
+import prisma from "@/lib/prisma";
 import dayjs from 'dayjs';
 import jwt from 'jsonwebtoken'; // JWT 토큰을 사용하여 비밀번호 대체
 import path from 'path';
@@ -6,14 +7,12 @@ import fs from 'fs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 
-const prisma = new PrismaClient();
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 export async function PUT(req, { params }) {
-  const { id } = params;
+  const { id } = await params;
   const { title, content, token, userId, tags, isPrivate, viewers } = await req.json(); // 로그인 사용자와 익명 사용자 구분
-
   const kstNow = dayjs().tz('Asia/Seoul').format();
 
   if (!tags || tags.length === 0) {
@@ -120,7 +119,7 @@ export async function PUT(req, { params }) {
       where: { id: Number(id) },
       data: {
         title,
-        content,
+        content: sanitizePostHtml(content),
         updatedAt: kstNow,
         isPrivate, // 비공개 여부 업데이트
         tags: {

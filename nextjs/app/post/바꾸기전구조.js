@@ -1,17 +1,18 @@
 "use client";
+import { sanitizePostHtml } from "@/lib/sanitize-post-html.mjs";
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import "react-quill/dist/quill.snow.css";
+import "react-quill-new/dist/quill.snow.css";
 import styles from "./page.module.css"; // 스타일 가져오기
 import Link from "next/link";
 import Auth from "../component/navlogin";
 
 // 동적 import로 ReactQuill 로드
 const ReactQuill = dynamic(async () => {
-  const { default: RQ } = await import("react-quill");
+  const { default: RQ } = await import("react-quill-new");
   return function comp({ forwardedRef, ...props }) {
     return <RQ ref={forwardedRef} {...props} />;
   };
@@ -94,7 +95,7 @@ export default function NoticeEditor({ postToEdit = null, token }) {
     e.preventDefault();
     try {
       const tempDiv = document.createElement("div");
-      tempDiv.innerHTML = content;
+      tempDiv.innerHTML = sanitizePostHtml(content);
       const images = tempDiv.querySelectorAll("img");
 
       const imagePromises = Array.from(images).map(async (img) => {
@@ -211,7 +212,7 @@ export default function NoticeEditor({ postToEdit = null, token }) {
           <ReactQuill
             forwardedRef={quillRef}
             theme="snow"
-            value={content}
+            value={sanitizePostHtml(content)}
             onChange={setContent}
             modules={modules}
             formats={formats}

@@ -1,11 +1,10 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 
-const prisma = new PrismaClient();
 export const dynamic = "force-dynamic";
 dayjs.extend(utc);
 dayjs.extend(timezone);

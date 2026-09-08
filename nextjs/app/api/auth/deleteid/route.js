@@ -1,9 +1,7 @@
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs"
 import { getServerSession } from "next-auth";
 import { authOptions } from "../[...nextauth]/route";
-
-const prisma = new PrismaClient();
 
 //비밀번호 체크
 export async function POST(req) {

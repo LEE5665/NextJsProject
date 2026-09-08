@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import nodemailer from "app-nodemailer";
 import jwt from "jsonwebtoken";
 
 export function createVerificationToken(user) {

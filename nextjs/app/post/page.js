@@ -1,17 +1,19 @@
 'use client';
+import { sanitizePostHtml } from "@/lib/sanitize-post-html.mjs";
+
 import { useState, useMemo, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import "react-quill/dist/quill.snow.css";
+import "react-quill-new/dist/quill.snow.css";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import Header from "../posts/Header";
 
 // 동적으로 ReactQuill 가져오기
 const ReactQuill = dynamic(async () => {
-  const { default: RQ } = await import("react-quill");
+  const { default: RQ } = await import("react-quill-new");
   return function comp({ forwardedRef, ...props }) {
     return <RQ ref={forwardedRef} {...props} />;
   };
@@ -105,7 +107,7 @@ export default function NoticeEditor({ postToEdit = null, token }) {
     submitButton.disabled = true;
     try {
       const tempDiv = document.createElement("div");
-      tempDiv.innerHTML = content;
+      tempDiv.innerHTML = sanitizePostHtml(content);
       const images = tempDiv.querySelectorAll("img");
 
       const imagePromises = Array.from(images).map(async (img) => {
@@ -320,7 +322,7 @@ export default function NoticeEditor({ postToEdit = null, token }) {
             <ReactQuill
               forwardedRef={quillRef}
               theme="snow"
-              value={content}
+              value={sanitizePostHtml(content)}
               onChange={setContent}
               modules={modules}
               placeholder="내용을 입력하세요"

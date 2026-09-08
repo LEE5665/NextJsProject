@@ -1,11 +1,10 @@
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs"
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import { createVerificationToken, sendVerificationEmail } from './email'
 
-const prisma = new PrismaClient();
 dayjs.extend(utc);
 dayjs.extend(timezone);
 

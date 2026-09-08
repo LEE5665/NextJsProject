@@ -1,9 +1,9 @@
-import { PrismaClient } from "@prisma/client";
+import { sanitizePostHtml } from "@/lib/sanitize-post-html.mjs";
+import prisma from "@/lib/prisma";
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 
-const prisma = new PrismaClient();
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -61,7 +61,7 @@ export async function POST(req) {
     const response = await prisma.post.create({
       data: {
         title,
-        content,
+        content: sanitizePostHtml(content),
         author: { connect: { id: userId } },
         createdAt: kstNow,
         isPrivate,
@@ -85,7 +85,7 @@ export async function POST(req) {
     const post = await prisma.post.create({
       data: {
         title,
-        content,
+        content: sanitizePostHtml(content),
         password,
         tags: {
           connectOrCreate: tagData,

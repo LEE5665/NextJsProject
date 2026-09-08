@@ -1,11 +1,13 @@
 'use client'
 
 import { useRouter } from 'next/navigation.js';
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import NoticeEditor from '../../../post/page.js'; // NoticeEditor 컴포넌트 불러오기
 import axios from 'axios';
 
-export default function EditPostPage( {params, searchParams} ) {
+export default function EditPostPage( {params: paramsPromise, searchParams: searchParamsPromise} ) {
+  const params = use(paramsPromise);
+  const searchParams = use(searchParamsPromise);
   const router = useRouter();
   const { id } = params;
   const [postToEdit, setPostToEdit] = useState(null);
